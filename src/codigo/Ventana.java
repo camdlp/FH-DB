@@ -5,6 +5,16 @@
  */
 package codigo;
 
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JTable;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
 /**
  *
  * @author Carlos
@@ -16,9 +26,70 @@ public class Ventana extends javax.swing.JFrame {
      */
     public Ventana() {
         initComponents();
+
+        //centro el jframe
+        setLocationRelativeTo(null);
+
+        //Empiezan los clientes clickados
+        jToggleButtonClientes.doClick();
     }
-    
+
     Conexion c = new Conexion();
+    String tabla = "";
+
+    public void creaTabla(ResultSet rs, String tabla) throws SQLException {
+
+        //Reinicio la tabla
+        DefaultTableModel model = (DefaultTableModel) jTableResultados.getModel();
+        model.setRowCount(0);
+
+        //Creo el resultsetmetadata y el modelo de la tabla, necesarios para la creación
+        //de la tabla dinámica.
+        ResultSetMetaData rsmd = rs.getMetaData();
+        DefaultTableModel tm = new DefaultTableModel();
+
+        //Pongo los nombres de cada columna
+        for (int i = 1; i <= rsmd.getColumnCount(); i++) {
+            tm.addColumn(rsmd.getColumnName(i));
+
+        }
+        //Recorro el resultset
+        //Números mágicos en j para arreglar el desfase entre el resultset, que empieza en 0
+        //y el array Object que empieza en 0.
+        while (rs.next()) {
+            Object[] o = new Object[rsmd.getColumnCount()];
+            for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+                o[j - 1] = rs.getObject(j);
+            }
+            tm.addRow(o);
+        }
+
+        //Añado el modelo a la tabla
+        jTableResultados.setModel(tm);
+        //Habilito el textinput para afinar búsqueda
+        jTextFieldBusqueda.setEnabled(true);
+        //Reinicio el filtro de la tabla.
+        filtrar("");
+
+        //Cierro el resultset y el statement ya que nos los voy a necesitar más
+        //Resultset usado en este método
+        rs.close();
+        //ResultSet y statement de la clase conexion
+        c.cierraResultSet();
+        c.cierraStatement();
+
+    }
+
+    /*
+    Método de filtrado de la tabla mediante TableRowSorter con regexfilter.
+     */
+    public void filtrar(String query) {
+        DefaultTableModel dm = (DefaultTableModel) jTableResultados.getModel();
+        TableRowSorter<DefaultTableModel> tr = new TableRowSorter<DefaultTableModel>(dm);
+        jTableResultados.setRowSorter(tr);
+
+        tr.setRowFilter(RowFilter.regexFilter(query));
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -29,36 +100,85 @@ public class Ventana extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTabbedPane2 = new javax.swing.JTabbedPane();
+        jTabbedPane = new javax.swing.JTabbedPane();
+        jPanelApp = new javax.swing.JPanel();
+        jToggleButtonClientes = new javax.swing.JToggleButton();
+        jToggleButtonPedidos = new javax.swing.JToggleButton();
         jPanelCocina = new javax.swing.JPanel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTableResultadosCocina = new javax.swing.JTable();
         jToggleButtonPlatos = new javax.swing.JToggleButton();
         jToggleButtonIngredientes = new javax.swing.JToggleButton();
-        jPanelClientes = new javax.swing.JPanel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTableResultadosClientes = new javax.swing.JTable();
-        jToggleButtonClientes = new javax.swing.JToggleButton();
-        jToggleButtonEmpleados = new javax.swing.JToggleButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTableResultados = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
+        jTextFieldBusqueda = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTableResultadosCocina.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+        jTabbedPane.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jTabbedPaneStateChanged(evt);
             }
-        ));
-        jScrollPane3.setViewportView(jTableResultadosCocina);
+        });
+        jTabbedPane.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jTabbedPaneMousePressed(evt);
+            }
+        });
 
+        jToggleButtonClientes.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jToggleButtonClientes.setText("Clientes");
+        jToggleButtonClientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jToggleButtonClientesMousePressed(evt);
+            }
+        });
+
+        jToggleButtonPedidos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jToggleButtonPedidos.setText("Pedidos");
+        jToggleButtonPedidos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jToggleButtonPedidosMousePressed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanelAppLayout = new javax.swing.GroupLayout(jPanelApp);
+        jPanelApp.setLayout(jPanelAppLayout);
+        jPanelAppLayout.setHorizontalGroup(
+            jPanelAppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelAppLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jToggleButtonClientes, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jToggleButtonPedidos, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanelAppLayout.setVerticalGroup(
+            jPanelAppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelAppLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanelAppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jToggleButtonPedidos)
+                    .addComponent(jToggleButtonClientes))
+                .addGap(285, 285, 285))
+        );
+
+        jTabbedPane.addTab("App", jPanelApp);
+
+        jToggleButtonPlatos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jToggleButtonPlatos.setText("Platos");
+        jToggleButtonPlatos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jToggleButtonPlatosMousePressed(evt);
+            }
+        });
 
+        jToggleButtonIngredientes.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jToggleButtonIngredientes.setText("Ingredientes");
+        jToggleButtonIngredientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jToggleButtonIngredientesMousePressed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanelCocinaLayout = new javax.swing.GroupLayout(jPanelCocina);
         jPanelCocina.setLayout(jPanelCocinaLayout);
@@ -66,12 +186,9 @@ public class Ventana extends javax.swing.JFrame {
             jPanelCocinaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelCocinaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelCocinaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelCocinaLayout.createSequentialGroup()
-                        .addComponent(jToggleButtonPlatos, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jToggleButtonIngredientes, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addComponent(jToggleButtonPlatos, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jToggleButtonIngredientes, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanelCocinaLayout.setVerticalGroup(
@@ -81,16 +198,12 @@ public class Ventana extends javax.swing.JFrame {
                 .addGroup(jPanelCocinaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jToggleButtonIngredientes)
                     .addComponent(jToggleButtonPlatos))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(257, Short.MAX_VALUE))
         );
 
-        jTabbedPane2.addTab("Cocina", jPanelCocina);
+        jTabbedPane.addTab("Cocina", jPanelCocina);
 
-        jScrollPane1.setAlignmentX(0.0F);
-
-        jTableResultadosClientes.setModel(new javax.swing.table.DefaultTableModel(
+        jTableResultados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -101,55 +214,122 @@ public class Ventana extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
-        jScrollPane1.setViewportView(jTableResultadosClientes);
+        jScrollPane3.setViewportView(jTableResultados);
 
-        jToggleButtonClientes.setText("Clientes");
+        jLabel2.setText("Afinar Búsqueda");
 
-        jToggleButtonEmpleados.setText("Empleados");
-
-        javax.swing.GroupLayout jPanelClientesLayout = new javax.swing.GroupLayout(jPanelClientes);
-        jPanelClientes.setLayout(jPanelClientesLayout);
-        jPanelClientesLayout.setHorizontalGroup(
-            jPanelClientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelClientesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanelClientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(jPanelClientesLayout.createSequentialGroup()
-                        .addComponent(jToggleButtonClientes, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jToggleButtonEmpleados, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        jPanelClientesLayout.setVerticalGroup(
-            jPanelClientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelClientesLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanelClientesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jToggleButtonEmpleados)
-                    .addComponent(jToggleButtonClientes))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        jTabbedPane2.addTab("Clientes", jPanelClientes);
+        jTextFieldBusqueda.setEnabled(false);
+        jTextFieldBusqueda.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextFieldBusquedaKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane2)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
+            .addComponent(jTabbedPane)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(60, 60, 60))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-     //Método para añadir instrucciones cuando el programa cierre
+    private void jTabbedPaneMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTabbedPaneMousePressed
+        if (jTabbedPane.getSelectedIndex() == 0) {
+            try {
+                creaTabla(c.devuelveResultSet("SELECT * FROM clientes"), tabla);
+
+            } catch (SQLException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            try {
+                creaTabla(c.devuelveResultSet("SELECT * FROM platos"), tabla);
+            } catch (SQLException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jTabbedPaneMousePressed
+
+    private void jTextFieldBusquedaKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldBusquedaKeyReleased
+        String texto = jTextFieldBusqueda.getText();
+        filtrar(texto);
+    }//GEN-LAST:event_jTextFieldBusquedaKeyReleased
+
+    private void jToggleButtonClientesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jToggleButtonClientesMousePressed
+
+        if (jToggleButtonClientes.isSelected()) {
+            jToggleButtonClientes.doClick();
+            jToggleButtonClientes.doClick();
+        } else {
+            jToggleButtonClientes.doClick();
+        }
+
+        jToggleButtonPedidos.setSelected(false);
+    }//GEN-LAST:event_jToggleButtonClientesMousePressed
+
+    private void jToggleButtonPedidosMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jToggleButtonPedidosMousePressed
+        if (jToggleButtonPedidos.isSelected()) {
+            jToggleButtonPedidos.doClick();
+            jToggleButtonPedidos.doClick();
+        } else {
+            jToggleButtonPedidos.doClick();
+        }
+
+        jToggleButtonClientes.setSelected(false);
+    }//GEN-LAST:event_jToggleButtonPedidosMousePressed
+
+    private void jToggleButtonPlatosMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jToggleButtonPlatosMousePressed
+        if (jToggleButtonPlatos.isSelected()) {
+            jToggleButtonPlatos.doClick();
+            jToggleButtonPlatos.doClick();
+        } else {
+            jToggleButtonPlatos.doClick();
+        }
+
+        jToggleButtonIngredientes.setSelected(false);
+    }//GEN-LAST:event_jToggleButtonPlatosMousePressed
+
+    private void jToggleButtonIngredientesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jToggleButtonIngredientesMousePressed
+        if (jToggleButtonIngredientes.isSelected()) {
+            jToggleButtonIngredientes.doClick();
+            jToggleButtonIngredientes.doClick();
+        } else {
+            jToggleButtonIngredientes.doClick();
+        }
+
+        jToggleButtonPlatos.setSelected(false);
+    }//GEN-LAST:event_jToggleButtonIngredientesMousePressed
+
+    private void jTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jTabbedPaneStateChanged
+        
+    }//GEN-LAST:event_jTabbedPaneStateChanged
+
+    //Método para añadir instrucciones cuando el programa cierre
     public void attachShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -159,7 +339,7 @@ public class Ventana extends javax.swing.JFrame {
         });
 
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -199,16 +379,16 @@ public class Ventana extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanelClientes;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JPanel jPanelApp;
     private javax.swing.JPanel jPanelCocina;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JTable jTableResultadosClientes;
-    private javax.swing.JTable jTableResultadosCocina;
+    private javax.swing.JTabbedPane jTabbedPane;
+    private javax.swing.JTable jTableResultados;
+    private javax.swing.JTextField jTextFieldBusqueda;
     private javax.swing.JToggleButton jToggleButtonClientes;
-    private javax.swing.JToggleButton jToggleButtonEmpleados;
     private javax.swing.JToggleButton jToggleButtonIngredientes;
+    private javax.swing.JToggleButton jToggleButtonPedidos;
     private javax.swing.JToggleButton jToggleButtonPlatos;
     // End of variables declaration//GEN-END:variables
 }
