@@ -24,7 +24,7 @@ public class Ventana extends javax.swing.JFrame {
     /**
      * Creates new form Ventana
      */
-    public Ventana() {
+    public Ventana() throws SQLException {
         initComponents();
 
         //centro el jframe
@@ -32,11 +32,18 @@ public class Ventana extends javax.swing.JFrame {
 
         //Empiezan los clientes clickados
         jToggleButtonClientes.doClick();
+        creaTabla(c.devuelveResultSet("SELECT * FROM clientes"), tabla);
     }
 
     Conexion c = new Conexion();
-    String tabla = "";
-
+    String tabla = "clientes";
+    
+    /*
+    ================================                ================================
+    ================================    MÉTODOS     ================================
+    ================================                ================================
+    
+     */
     public void creaTabla(ResultSet rs, String tabla) throws SQLException {
 
         //Reinicio la tabla
@@ -91,6 +98,32 @@ public class Ventana extends javax.swing.JFrame {
         tr.setRowFilter(RowFilter.regexFilter(query));
     }
 
+    public void rellenaComboBox() {
+
+        //Vacío el ComboBox
+        jComboBoxBusqueda.removeAllItems();
+
+        //Añado el nombre del atributo al comboBox para poder hacer las búsquedas después
+        for (int i = 0; i < jTableResultados.getColumnCount(); i++) {
+            jComboBoxBusqueda.addItem(jTableResultados.getColumnName(i));
+        }
+
+    }
+    
+    
+    
+    /*
+    ================================                    ================================
+    ================================    FIN MÉTODOS     ================================
+    ================================                    ================================
+    
+     */
+ /*
+    ================================                ================================
+    ================================    EVENTOS     ================================
+    ================================                ================================
+    
+     */
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -111,6 +144,10 @@ public class Ventana extends javax.swing.JFrame {
         jTableResultados = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
         jTextFieldBusqueda = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        jTextFieldBusqueda1 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        jComboBoxBusqueda = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -127,6 +164,11 @@ public class Ventana extends javax.swing.JFrame {
 
         jToggleButtonClientes.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jToggleButtonClientes.setText("Clientes");
+        jToggleButtonClientes.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jToggleButtonClientesStateChanged(evt);
+            }
+        });
         jToggleButtonClientes.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jToggleButtonClientesMousePressed(evt);
@@ -135,6 +177,11 @@ public class Ventana extends javax.swing.JFrame {
 
         jToggleButtonPedidos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jToggleButtonPedidos.setText("Pedidos");
+        jToggleButtonPedidos.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jToggleButtonPedidosStateChanged(evt);
+            }
+        });
         jToggleButtonPedidos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jToggleButtonPedidosMousePressed(evt);
@@ -166,6 +213,11 @@ public class Ventana extends javax.swing.JFrame {
 
         jToggleButtonPlatos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jToggleButtonPlatos.setText("Platos");
+        jToggleButtonPlatos.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jToggleButtonPlatosStateChanged(evt);
+            }
+        });
         jToggleButtonPlatos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jToggleButtonPlatosMousePressed(evt);
@@ -174,6 +226,11 @@ public class Ventana extends javax.swing.JFrame {
 
         jToggleButtonIngredientes.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jToggleButtonIngredientes.setText("Ingredientes");
+        jToggleButtonIngredientes.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jToggleButtonIngredientesStateChanged(evt);
+            }
+        });
         jToggleButtonIngredientes.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 jToggleButtonIngredientesMousePressed(evt);
@@ -225,6 +282,16 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
+        jLabel3.setText("Buscar");
+
+        jTextFieldBusqueda1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jTextFieldBusqueda1KeyReleased(evt);
+            }
+        });
+
+        jLabel4.setText("Por:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -234,7 +301,14 @@ public class Ventana extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane3)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -249,8 +323,12 @@ public class Ventana extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(60, 60, 60))
         );
@@ -260,18 +338,12 @@ public class Ventana extends javax.swing.JFrame {
 
     private void jTabbedPaneMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTabbedPaneMousePressed
         if (jTabbedPane.getSelectedIndex() == 0) {
-            try {
-                creaTabla(c.devuelveResultSet("SELECT * FROM clientes"), tabla);
-
-            } catch (SQLException ex) {
-                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        } else {
-            try {
-                creaTabla(c.devuelveResultSet("SELECT * FROM platos"), tabla);
-            } catch (SQLException ex) {
-                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            jToggleButtonPedidos.setSelected(false);
+            jToggleButtonClientes.setSelected(true);
+            
+        } else if (jTabbedPane.getSelectedIndex() == 1) {
+            jToggleButtonPlatos.setSelected(true);
+            jToggleButtonIngredientes.setSelected(false);
         }
     }//GEN-LAST:event_jTabbedPaneMousePressed
 
@@ -326,9 +398,78 @@ public class Ventana extends javax.swing.JFrame {
     }//GEN-LAST:event_jToggleButtonIngredientesMousePressed
 
     private void jTabbedPaneStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jTabbedPaneStateChanged
-        
+
     }//GEN-LAST:event_jTabbedPaneStateChanged
 
+    private void jToggleButtonPedidosStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jToggleButtonPedidosStateChanged
+        if (jToggleButtonPedidos.isSelected()) {
+            try {
+                tabla = "ingredientes";
+                creaTabla(c.devuelveResultSet("SELECT * FROM pedidos"), tabla);
+                rellenaComboBox();
+            } catch (SQLException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jToggleButtonPedidosStateChanged
+
+    private void jToggleButtonIngredientesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jToggleButtonIngredientesStateChanged
+        if (jToggleButtonIngredientes.isSelected()) {
+            try {
+                tabla = "ingredientes";
+                creaTabla(c.devuelveResultSet("SELECT * FROM ingredientes"), tabla);                
+                rellenaComboBox();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jToggleButtonIngredientesStateChanged
+
+    /*
+    Cada vez que se pulsa una tecla realiza una búsqueda de acuerdo con el atributo elegido en el comboBox
+    y con lo escrito en el jtextfield
+    
+     */
+    private void jTextFieldBusqueda1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextFieldBusqueda1KeyReleased
+        try {
+            creaTabla(c.devuelveResultSet("SELECT * FROM " + tabla + " WHERE " + jComboBoxBusqueda.getSelectedItem().toString() + " LIKE '%" + jTextFieldBusqueda1.getText() + "%';"), tabla);
+        } catch (SQLException ex) {
+            Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jTextFieldBusqueda1KeyReleased
+
+    private void jToggleButtonPlatosStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jToggleButtonPlatosStateChanged
+        if (jToggleButtonPlatos.isSelected()) {
+            try {
+                tabla = "platos";
+                creaTabla(c.devuelveResultSet("SELECT * FROM platos"), tabla);
+                rellenaComboBox();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jToggleButtonPlatosStateChanged
+
+    private void jToggleButtonClientesStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jToggleButtonClientesStateChanged
+        if (jToggleButtonClientes.isSelected()) {
+            try {
+                tabla = "clientes";
+                creaTabla(c.devuelveResultSet("SELECT * FROM clientes"), tabla);
+                rellenaComboBox();
+            } catch (SQLException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jToggleButtonClientesStateChanged
+
+    /*
+    ================================                    ================================
+    ================================    FIN EVENTOS     ================================
+    ================================                    ================================
+    
+     */
     //Método para añadir instrucciones cuando el programa cierre
     public void attachShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -370,22 +511,30 @@ public class Ventana extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                Ventana v = new Ventana();
-                v.setVisible(true);
-                //Meto la instrucción que cerrará la conexión
-                v.attachShutDownHook();
+                try {
+                    Ventana v = new Ventana();
+                    v.setVisible(true);
+                    //Meto la instrucción que cerrará la conexión
+                    v.attachShutDownHook();
+                } catch (SQLException ex) {
+                    Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> jComboBoxBusqueda;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanelApp;
     private javax.swing.JPanel jPanelCocina;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTable jTableResultados;
     private javax.swing.JTextField jTextFieldBusqueda;
+    private javax.swing.JTextField jTextFieldBusqueda1;
     private javax.swing.JToggleButton jToggleButtonClientes;
     private javax.swing.JToggleButton jToggleButtonIngredientes;
     private javax.swing.JToggleButton jToggleButtonPedidos;
