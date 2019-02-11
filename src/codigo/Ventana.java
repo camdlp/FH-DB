@@ -5,12 +5,16 @@
  */
 package codigo;
 
+import java.awt.Component;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTable;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
@@ -37,7 +41,8 @@ public class Ventana extends javax.swing.JFrame {
 
     Conexion c = new Conexion();
     String tabla = "clientes";
-    
+
+
     /*
     ================================                ================================
     ================================    MÉTODOS     ================================
@@ -109,9 +114,7 @@ public class Ventana extends javax.swing.JFrame {
         }
 
     }
-    
-    
-    
+
     /*
     ================================                    ================================
     ================================    FIN MÉTODOS     ================================
@@ -148,9 +151,11 @@ public class Ventana extends javax.swing.JFrame {
         jTextFieldBusqueda1 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jComboBoxBusqueda = new javax.swing.JComboBox<>();
+        jButtonAdd = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+        jTabbedPane.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jTabbedPane.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jTabbedPaneStateChanged(evt);
@@ -162,7 +167,7 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
-        jToggleButtonClientes.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jToggleButtonClientes.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jToggleButtonClientes.setText("Clientes");
         jToggleButtonClientes.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -175,7 +180,7 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
-        jToggleButtonPedidos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
+        jToggleButtonPedidos.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jToggleButtonPedidos.setText("Pedidos");
         jToggleButtonPedidos.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
@@ -209,7 +214,7 @@ public class Ventana extends javax.swing.JFrame {
                 .addGap(285, 285, 285))
         );
 
-        jTabbedPane.addTab("App", jPanelApp);
+        jTabbedPane.addTab("     App     ", jPanelApp);
 
         jToggleButtonPlatos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jToggleButtonPlatos.setText("Platos");
@@ -255,11 +260,12 @@ public class Ventana extends javax.swing.JFrame {
                 .addGroup(jPanelCocinaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jToggleButtonIngredientes)
                     .addComponent(jToggleButtonPlatos))
-                .addContainerGap(257, Short.MAX_VALUE))
+                .addContainerGap(256, Short.MAX_VALUE))
         );
 
-        jTabbedPane.addTab("Cocina", jPanelCocina);
+        jTabbedPane.addTab("     Cocina     ", jPanelCocina);
 
+        jTableResultados.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jTableResultados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -275,6 +281,7 @@ public class Ventana extends javax.swing.JFrame {
 
         jLabel2.setText("Afinar Búsqueda");
 
+        jTextFieldBusqueda.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jTextFieldBusqueda.setEnabled(false);
         jTextFieldBusqueda.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -284,6 +291,7 @@ public class Ventana extends javax.swing.JFrame {
 
         jLabel3.setText("Buscar");
 
+        jTextFieldBusqueda1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jTextFieldBusqueda1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextFieldBusqueda1KeyReleased(evt);
@@ -291,6 +299,16 @@ public class Ventana extends javax.swing.JFrame {
         });
 
         jLabel4.setText("Por:");
+
+        jComboBoxBusqueda.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+
+        jButtonAdd.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jButtonAdd.setText("Añadir");
+        jButtonAdd.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jButtonAddMousePressed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -308,6 +326,8 @@ public class Ventana extends javax.swing.JFrame {
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(135, 135, 135)
+                        .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -327,8 +347,9 @@ public class Ventana extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
-                    .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                    .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonAdd))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(60, 60, 60))
         );
@@ -340,7 +361,7 @@ public class Ventana extends javax.swing.JFrame {
         if (jTabbedPane.getSelectedIndex() == 0) {
             jToggleButtonPedidos.setSelected(false);
             jToggleButtonClientes.setSelected(true);
-            
+
         } else if (jTabbedPane.getSelectedIndex() == 1) {
             jToggleButtonPlatos.setSelected(true);
             jToggleButtonIngredientes.setSelected(false);
@@ -417,7 +438,7 @@ public class Ventana extends javax.swing.JFrame {
         if (jToggleButtonIngredientes.isSelected()) {
             try {
                 tabla = "ingredientes";
-                creaTabla(c.devuelveResultSet("SELECT * FROM ingredientes"), tabla);                
+                creaTabla(c.devuelveResultSet("SELECT * FROM ingredientes"), tabla);
                 rellenaComboBox();
 
             } catch (SQLException ex) {
@@ -463,6 +484,71 @@ public class Ventana extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jToggleButtonClientesStateChanged
+
+
+    private void jButtonAddMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMousePressed
+        JTextField titulo = new JTextField();
+        JTextField letras = new JTextField();
+
+        ArrayList<String> lista = new ArrayList<String>();
+
+        //Si referencia en algún campo a otra tabla
+//        try {
+//
+//            ResultSet rs = c.devuelveResultSet("SELECT * FROM albumes");
+//
+//            while (rs.next()) {
+//                lista.add(rs.getString("titulo"));
+//            }
+//            System.out.println(lista.toString());
+//            rs.close();
+//            c.cierraResultSet();
+//            c.cierraStatement();
+//
+//        } catch (SQLException ex) {
+//            Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//        JComboBox album_id = new JComboBox(lista.toArray());
+        //FIN Si referencia en algún campo a otra tabla
+        
+        JTextField tfield;
+        Object[] mensaje = new Object[jTableResultados.getColumnCount() * 2];
+        JTextField[] jtfa = new JTextField[jTableResultados.getColumnCount()];
+        
+        //Recorro las columnas y creo un jtextfield por cada columna
+        //Adicionalmente los guardo en un array de jTextfields que me servirán para 
+        //sacar la información de ellos
+        for (int i = 0; i < jTableResultados.getColumnCount(); i++) {
+
+            jtfa[i] = new JTextField(jTableResultados.getColumnName(i));
+            mensaje[i] = jtfa[i];
+
+        }
+
+        int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Añadir canción", JOptionPane.OK_CANCEL_OPTION);
+        if (opcion == JOptionPane.OK_OPTION) {
+            //String query = "INSERT INTO "+tabla+"("++")";
+            //Saco el contenido de cada textfield
+            for (JTextField field : jtfa) {
+                System.out.println(field.getText());
+            }
+
+//
+//            try {
+//
+//                String query = "INSERT INTO canciones (`titulo`, `letras`, `album_id`) VALUES ('" + titulo.getText() + "', '" + letras.getText() + "', '" + (album_id.getSelectedIndex() + 1) + "');";
+//                System.out.println(query);
+//                c.ejecutaQuery(query);
+//                creaTabla(c.ultimaAdicion("canciones", jTableResultados.getRowCount() + 1));
+//            } catch (SQLException ex) {
+//                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//
+//        } else {
+//            System.out.println("Inserción cancelada");
+        }
+    }//GEN-LAST:event_jButtonAddMousePressed
 
     /*
     ================================                    ================================
@@ -524,6 +610,7 @@ public class Ventana extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonAdd;
     private javax.swing.JComboBox<String> jComboBoxBusqueda;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
