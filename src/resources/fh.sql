@@ -28,21 +28,6 @@ CREATE TABLE `ingredientes` (
 
 
 --
--- Estructura de tabla para la tabla `pedidos`
---
-DROP TABLE IF EXISTS pedidos;
-
-CREATE TABLE `pedidos` (
-  `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `alias_clientes` varchar(20) NOT NULL,
-  `platos` int(11) NOT NULL,
-  `fecha` date NOT NULL, 
-	FOREIGN KEY (`alias_clientes`) REFERENCES `clientes` (`alias`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `platos`
 --
 DROP TABLE IF EXISTS platos;
@@ -54,6 +39,24 @@ CREATE TABLE `platos` (
 	FOREIGN KEY (`nombre_ingredientes`) REFERENCES `ingredientes` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+--
+-- Estructura de tabla para la tabla `pedidos`
+--
+DROP TABLE IF EXISTS pedidos;
+
+CREATE TABLE `pedidos` (
+  `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `alias_clientes` varchar(20) NOT NULL,
+  `nombre_platos` varchar(30) NOT NULL,
+  `fecha` date NOT NULL, 
+	FOREIGN KEY (`alias_clientes`) REFERENCES `clientes` (`alias`), 
+        FOREIGN KEY (`nombre_platos`) REFERENCES `platos` (`nombre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+
+
 INSERT INTO `clientes` (`alias`, `pass`, `correo`, `staff`) 
     VALUES ('c', 'c', 'c@c.com', '1'), ('a', 'a', 'c@c.com', '1'),('b', 'b', 'c@c.com', '1'),('d', 'd', 'c@c.com', '0');
 
@@ -63,5 +66,5 @@ INSERT INTO `ingredientes` (`id`, `nombre`, `stock`)
 INSERT INTO `platos` (`id`, `nombre`, `nombre_ingredientes`) 
     VALUES (NULL, 'Espinacas al ajillo', 'espinacas'), (NULL, 'Pollo a la plancha', 'comino');
 
-INSERT INTO `pedidos` (`id`, `alias_clientes`, `platos`, `fecha`) 
-    VALUES (NULL, 'a', '1', CURRENT_TIMESTAMP), (NULL, 'b', '1', CURRENT_TIMESTAMP);
+INSERT INTO `pedidos` (`id`, `alias_clientes`, `nombre_platos`, `fecha`) 
+    VALUES (NULL, 'a', 'Espinacas al ajillo', CURRENT_TIMESTAMP), (NULL, 'b', 'Espinacas al ajillo', CURRENT_TIMESTAMP);

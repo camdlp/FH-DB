@@ -551,10 +551,11 @@ public class Ventana extends javax.swing.JFrame {
                 }
                 
             }else{
-                //Guardo nombre
-                mensaje[i][0] = jTableResultados.getColumnName(i);
+                
                 camposRellenos[i] = new JTextField();
             }
+            //Guardo nombre
+                mensaje[i][0] = jTableResultados.getColumnName(i);
             //Guardo jtextfield
             mensaje[i][1] = camposRellenos[i];
             
