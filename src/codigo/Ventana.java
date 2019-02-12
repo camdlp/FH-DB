@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
@@ -425,7 +426,7 @@ public class Ventana extends javax.swing.JFrame {
     private void jToggleButtonPedidosStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jToggleButtonPedidosStateChanged
         if (jToggleButtonPedidos.isSelected()) {
             try {
-                tabla = "ingredientes";
+                tabla = "pedidos";
                 creaTabla(c.devuelveResultSet("SELECT * FROM pedidos"), tabla);
                 rellenaComboBox();
             } catch (SQLException ex) {
@@ -512,26 +513,75 @@ public class Ventana extends javax.swing.JFrame {
 //        JComboBox album_id = new JComboBox(lista.toArray());
         //FIN Si referencia en algún campo a otra tabla
         
-        JTextField tfield;
-        Object[] mensaje = new Object[jTableResultados.getColumnCount() * 2];
-        JTextField[] jtfa = new JTextField[jTableResultados.getColumnCount()];
+        //Array de 2 dimesiones donde en la primera columna se guardará el nombre del campo
+        //y en la segunda habrá un jtextfield a rellenar con el campo.
+        Object[][] mensaje = new Object[jTableResultados.getColumnCount()][2];
+        //Array que guarda los jtextfield generados cuyo contenido será insertado en la bbdd.
+        Object[] camposRellenos = new Object[jTableResultados.getColumnCount()];
         
         //Recorro las columnas y creo un jtextfield por cada columna
-        //Adicionalmente los guardo en un array de jTextfields que me servirán para 
-        //sacar la información de ellos
+        //Adicionalmente los guardo en un array de Objetos que me servirán para 
+        //sacar la información de Jtextfields y jcomboboxes
         for (int i = 0; i < jTableResultados.getColumnCount(); i++) {
-
-            jtfa[i] = new JTextField(jTableResultados.getColumnName(i));
-            mensaje[i] = jtfa[i];
+            
+            
+            
+            
+            
+            //Si contiene _ es que es una clave ajena por que en vez de jtextfield contendrá un jcombobox 
+            //con las opciones
+            if(jTableResultados.getColumnName(i).contains("_")){
+                //Creo el comboBox que necesitaré y lo  guardo en campos rellenos para poder sacar los datos más tarde.
+                camposRellenos[i] = new JComboBox<Object>();
+                String string = jTableResultados.getColumnName(i);
+                //Divido el nombre por la barra baja que me deja el nombre del campo y la tabla a la que referencia
+                String[] partes = string.split("_");
+                
+                try {
+                    ResultSet claveAjena = c.devuelveResultSet("SELECT "+partes[0]+" FROM "+ partes[1]);
+                    
+                    //Saco del resultset los items que contendrá el jcombobox
+                    while(claveAjena.next()){
+                        
+                        JComboBox jcb = (JComboBox) camposRellenos[i];
+                        jcb.addItem(claveAjena.getObject(partes[0]));
+                    }
+                } catch (SQLException ex) {
+                    Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }else{
+                //Guardo nombre
+                mensaje[i][0] = jTableResultados.getColumnName(i);
+                camposRellenos[i] = new JTextField();
+            }
+            //Guardo jtextfield
+            mensaje[i][1] = camposRellenos[i];
+            
 
         }
 
-        int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Añadir canción", JOptionPane.OK_CANCEL_OPTION);
+        int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Añadir " + tabla, JOptionPane.OK_CANCEL_OPTION);
         if (opcion == JOptionPane.OK_OPTION) {
             //String query = "INSERT INTO "+tabla+"("++")";
             //Saco el contenido de cada textfield
-            for (JTextField field : jtfa) {
-                System.out.println(field.getText());
+//            for (JTextField field : jtfa) {
+//                System.out.println(field.getText());
+//            }
+            
+            
+            String[] inserta = new String[camposRellenos.length];
+            for(int i = 0; i < camposRellenos.length; i++){
+                
+                try {
+                    if(camposRellenos[i].getClass().equals(Class.forName("javax.swing.JTextField"))){
+                        System.out.println("Es un jtexfield");
+                    }
+                    
+                    //inserta[i] = jtfa[i].getClass();
+                } catch (ClassNotFoundException ex) {
+                    System.out.println("Fallo en el chequeo del JTextField");
+                }
             }
 
 //
