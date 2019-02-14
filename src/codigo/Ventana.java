@@ -5,16 +5,16 @@
  */
 package codigo;
 
-import java.awt.Component;
+import com.mysql.cj.x.protobuf.MysqlxExpr;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
@@ -113,6 +113,141 @@ public class Ventana extends javax.swing.JFrame {
         for (int i = 0; i < jTableResultados.getColumnCount(); i++) {
             jComboBoxBusqueda.addItem(jTableResultados.getColumnName(i));
         }
+
+    }
+
+    public Object[] addClientes() {
+        JTextField alias = new JTextField();
+        JTextField correo = new JTextField();
+        JPasswordField pass = new JPasswordField();
+        Object[] mensaje = new Object[6];
+
+        mensaje[0] = "Alias";
+        mensaje[1] = alias;
+        mensaje[2] = "Contraseña";
+        mensaje[3] = pass;
+        mensaje[4] = "Correo";
+        mensaje[5] = correo;
+
+        return mensaje;
+
+    }
+
+    public Object[] addPedidos(int articulos) throws SQLException {
+
+        JComboBox alias_clientes = new JComboBox();
+        JComboBox nombre_platos = new JComboBox();
+        JTextField fecha = new JTextField("YYYY/MM/DD");
+        Object[] mensaje = new Object[6 + articulos];
+        //Modelo del combobox
+        ArrayList<String> modeloCombo = new ArrayList<String>();
+
+        //Relleno los comboBox de alias_clientes y nombre_platos
+        ResultSet rs;
+        rs = c.devuelveResultSet("SELECT alias FROM clientes");
+
+        while (rs.next()) {
+            alias_clientes.addItem(rs.getString("alias"));
+        }
+
+        rs = c.devuelveResultSet("SELECT nombre FROM platos");
+
+        modeloCombo.add("");
+        while (rs.next()) {
+            modeloCombo.add(rs.getString("nombre"));
+        }
+
+        rs.close();
+
+        mensaje[0] = "Alias del Cliente";
+        mensaje[1] = alias_clientes;
+        mensaje[2] = "Fecha del Pedido. (Formato año/mes/dia)";
+        mensaje[3] = fecha;
+        mensaje[4] = "Platos pedidos";
+        mensaje[5] = nombre_platos;
+
+        for (int i = 5; i < articulos + 5; i++) {
+            JComboBox jc = new JComboBox(modeloCombo.toArray());
+
+            mensaje[i] = jc;
+        }
+
+        return mensaje;
+
+    }
+
+    public Object[] addPlatos(int ingredientes) throws SQLException {
+
+        JTextField nombre = new JTextField();
+        //JComboBox nombre_ingredientes = new JComboBox();
+        Object[] mensaje = new Object[3 + ingredientes];
+        ArrayList<String> modeloCombo = new ArrayList<String>();
+        //Relleno los comboBox de alias_clientes y nombre_platos
+        ResultSet rs;
+        rs = c.devuelveResultSet("SELECT nombre FROM ingredientes");
+
+        System.out.println(rs.getRow());
+
+        modeloCombo.add("");
+        while (rs.next()) {
+            modeloCombo.add(rs.getString("nombre"));
+
+        }
+
+        rs.close();
+
+        mensaje[0] = "Nombre del plato";
+        mensaje[1] = nombre;
+        mensaje[2] = "Ingredientes que lleva";
+
+        for (int i = 3; i < ingredientes + 3; i++) {
+            JComboBox jc = new JComboBox(modeloCombo.toArray());
+
+            mensaje[i] = jc;
+        }
+
+        return mensaje;
+
+    }
+
+    public Object[] addIngredientes() {
+        JTextField nombre = new JTextField();
+        JComboBox stock = new JComboBox();
+        Object[] mensaje = new Object[4];
+
+        stock.addItem("true");
+        stock.addItem("false");
+
+        mensaje[0] = "Nombre";
+        mensaje[1] = nombre;
+        mensaje[2] = "Stock";
+        mensaje[3] = stock;
+
+        return mensaje;
+
+    }
+
+    public void inserta(Object[] campos) throws SQLException {
+        int columnas = jTableResultados.getColumnCount();
+        String nombres = "(";
+        String values = "(";
+        for (int i = 0; i < columnas; i++) {
+            nombres += jTableResultados.getColumnName(i);
+            values += "'" + campos[i] + "'";
+
+            //Si no es la última pondré comas para poder seguir metiendo valores
+            if (i != columnas - 1) {
+                nombres += ",";
+                values += ",";
+            }
+        }
+        nombres += ")";
+        values += ")";
+
+        String output = "INSERT INTO " + tabla + " " + nombres + " VALUES" + values;
+        System.out.println(output);
+
+        c.ejecutaQuery(output);
 
     }
 
@@ -488,116 +623,30 @@ public class Ventana extends javax.swing.JFrame {
 
 
     private void jButtonAddMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAddMousePressed
-        JTextField titulo = new JTextField();
-        JTextField letras = new JTextField();
+        Object[] mensaje = null;
 
-        ArrayList<String> lista = new ArrayList<String>();
+        try {
 
-        //Si referencia en algún campo a otra tabla
-//        try {
-//
-//            ResultSet rs = c.devuelveResultSet("SELECT * FROM albumes");
-//
-//            while (rs.next()) {
-//                lista.add(rs.getString("titulo"));
-//            }
-//            System.out.println(lista.toString());
-//            rs.close();
-//            c.cierraResultSet();
-//            c.cierraStatement();
-//
-//        } catch (SQLException ex) {
-//            Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//
-//        JComboBox album_id = new JComboBox(lista.toArray());
-        //FIN Si referencia en algún campo a otra tabla
-        
-        //Array de 2 dimesiones donde en la primera columna se guardará el nombre del campo
-        //y en la segunda habrá un jtextfield a rellenar con el campo.
-        Object[][] mensaje = new Object[jTableResultados.getColumnCount()][2];
-        //Array que guarda los jtextfield generados cuyo contenido será insertado en la bbdd.
-        Object[] camposRellenos = new Object[jTableResultados.getColumnCount()];
-        
-        //Recorro las columnas y creo un jtextfield por cada columna
-        //Adicionalmente los guardo en un array de Objetos que me servirán para 
-        //sacar la información de Jtextfields y jcomboboxes
-        for (int i = 0; i < jTableResultados.getColumnCount(); i++) {
-            
-            
-            
-            
-            
-            //Si contiene _ es que es una clave ajena por que en vez de jtextfield contendrá un jcombobox 
-            //con las opciones
-            if(jTableResultados.getColumnName(i).contains("_")){
-                //Creo el comboBox que necesitaré y lo  guardo en campos rellenos para poder sacar los datos más tarde.
-                camposRellenos[i] = new JComboBox<Object>();
-                String string = jTableResultados.getColumnName(i);
-                //Divido el nombre por la barra baja que me deja el nombre del campo y la tabla a la que referencia
-                String[] partes = string.split("_");
-                
-                try {
-                    ResultSet claveAjena = c.devuelveResultSet("SELECT "+partes[0]+" FROM "+ partes[1]);
-                    
-                    //Saco del resultset los items que contendrá el jcombobox
-                    while(claveAjena.next()){
-                        
-                        JComboBox jcb = (JComboBox) camposRellenos[i];
-                        jcb.addItem(claveAjena.getObject(partes[0]));
-                    }
-                } catch (SQLException ex) {
-                    Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-            }else{
-                
-                camposRellenos[i] = new JTextField();
+            if (tabla == "clientes") {
+                mensaje = addClientes();
+            } else if (tabla == "pedidos") {
+                mensaje = addPedidos(Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos artículos tendrá?")));
+            } else if (tabla == "ingredientes") {
+                mensaje = addIngredientes();
+            } else if (tabla == "platos") {
+                //Pregunto cuánto ingredientes tendrá
+                mensaje = addPlatos(Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos ingredientes tendrá?")));
+            } else {
+                System.out.println("Tabla desconocida o no seleccionada");
             }
-            //Guardo nombre
-                mensaje[i][0] = jTableResultados.getColumnName(i);
-            //Guardo jtextfield
-            mensaje[i][1] = camposRellenos[i];
-            
 
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Añadir " + tabla, JOptionPane.OK_CANCEL_OPTION);
         if (opcion == JOptionPane.OK_OPTION) {
-            //String query = "INSERT INTO "+tabla+"("++")";
-            //Saco el contenido de cada textfield
-//            for (JTextField field : jtfa) {
-//                System.out.println(field.getText());
-//            }
-            
-            
-            String[] inserta = new String[camposRellenos.length];
-            for(int i = 0; i < camposRellenos.length; i++){
-                
-                try {
-                    if(camposRellenos[i].getClass().equals(Class.forName("javax.swing.JTextField"))){
-                        System.out.println("Es un jtexfield");
-                    }
-                    
-                    //inserta[i] = jtfa[i].getClass();
-                } catch (ClassNotFoundException ex) {
-                    System.out.println("Fallo en el chequeo del JTextField");
-                }
-            }
 
-//
-//            try {
-//
-//                String query = "INSERT INTO canciones (`titulo`, `letras`, `album_id`) VALUES ('" + titulo.getText() + "', '" + letras.getText() + "', '" + (album_id.getSelectedIndex() + 1) + "');";
-//                System.out.println(query);
-//                c.ejecutaQuery(query);
-//                creaTabla(c.ultimaAdicion("canciones", jTableResultados.getRowCount() + 1));
-//            } catch (SQLException ex) {
-//                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//
-//        } else {
-//            System.out.println("Inserción cancelada");
         }
     }//GEN-LAST:event_jButtonAddMousePressed
 

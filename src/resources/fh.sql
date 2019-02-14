@@ -1,4 +1,4 @@
-﻿
+DROP DATABASE IF EXISTS fh;
 CREATE DATABASE IF NOT EXISTS fh;
 USE fh;
 
@@ -8,7 +8,8 @@ USE fh;
 DROP TABLE IF EXISTS clientes;
 
 CREATE TABLE `clientes` (
-  `alias` varchar(20) NOT NULL PRIMARY KEY,
+  `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `alias` varchar(20) NOT NULL UNIQUE KEY,
   `pass` varchar(20) NOT NULL,
   `correo` varchar(50) NOT NULL,
   `staff` tinyint(1) NOT NULL DEFAULT '0'
@@ -28,7 +29,8 @@ CREATE TABLE `ingredientes` (
 
 
 --
--- Estructura de tabla para la tabla `platos`
+-- Estructura de tabla para la tabla    
+ 
 --
 DROP TABLE IF EXISTS platos;
 
@@ -48,12 +50,49 @@ CREATE TABLE `pedidos` (
   `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `alias_clientes` varchar(20) NOT NULL,
   `nombre_platos` varchar(30) NOT NULL,
-  `fecha` date NOT NULL, 
+  `fecha` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
 	FOREIGN KEY (`alias_clientes`) REFERENCES `clientes` (`alias`), 
         FOREIGN KEY (`nombre_platos`) REFERENCES `platos` (`nombre`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
+
+
+
+--
+-- Estructura de tabla para la tabla `pedidos`
+--
+DROP TABLE IF EXISTS platos_ingredientes;
+
+CREATE TABLE `platos_ingredientes` (
+  `id_plato` int(11) NOT NULL,
+  `id_ingrediente` int(11) NOT NULL,
+  `cantidad` varchar(30) NOT NULL DEFAULT 1,
+    PRIMARY KEY(`id_plato`, `id_ingrediente`),
+	FOREIGN KEY (`id_plato`) REFERENCES `platos` (`id`), 
+        FOREIGN KEY (`id_ingrediente`) REFERENCES `ingredientes` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+
+
+--
+-- Estructura de tabla para la tabla `pedidos`
+--
+DROP TABLE IF EXISTS pedidos_platos;
+
+CREATE TABLE `pedidos_platos` (
+  `id_pedido` int(11) NOT NULL,
+  `id_plato` int(11) NOT NULL,
+  `cantidad` varchar(30) NOT NULL DEFAULT 1,
+    PRIMARY KEY(`id_pedido`, `id_plato`),
+	FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id`), 
+        FOREIGN KEY (`id_plato`) REFERENCES `platos` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
 
 
 
@@ -66,5 +105,11 @@ INSERT INTO `ingredientes` (`id`, `nombre`, `stock`)
 INSERT INTO `platos` (`id`, `nombre`, `nombre_ingredientes`) 
     VALUES (NULL, 'Espinacas al ajillo', 'espinacas'), (NULL, 'Pollo a la plancha', 'comino');
 
-INSERT INTO `pedidos` (`id`, `alias_clientes`, `nombre_platos`, `fecha`) 
-    VALUES (NULL, 'a', 'Espinacas al ajillo', CURRENT_TIMESTAMP), (NULL, 'b', 'Espinacas al ajillo', CURRENT_TIMESTAMP);
+INSERT INTO `pedidos` (`id`, `alias_clientes`, `nombre_platos`) 
+    VALUES (NULL, 'a', 'Espinacas al ajillo'), (NULL, 'b', 'Espinacas al ajillo');
+
+INSERT INTO `platos_ingredientes` (`id_plato`, `id_ingrediente`, `cantidad`)
+    VALUES(1, 1, 1), (1, 2, 1);
+
+INSERT INTO `pedidos_platos` (`id_pedido`, `id_plato`, `cantidad`)
+    VALUES(1, 1, 1), (1, 2, 1);
