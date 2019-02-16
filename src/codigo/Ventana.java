@@ -5,10 +5,10 @@
  */
 package codigo;
 
-import com.mysql.cj.x.protobuf.MysqlxExpr;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -120,7 +120,11 @@ public class Ventana extends javax.swing.JFrame {
         JTextField alias = new JTextField();
         JTextField correo = new JTextField();
         JPasswordField pass = new JPasswordField();
-        Object[] mensaje = new Object[6];
+        Object[] mensaje = new Object[8];
+        JComboBox jc = new JComboBox();
+        
+        jc.addItem("false");
+        jc.addItem("true");
 
         mensaje[0] = "Alias";
         mensaje[1] = alias;
@@ -128,6 +132,8 @@ public class Ventana extends javax.swing.JFrame {
         mensaje[3] = pass;
         mensaje[4] = "Correo";
         mensaje[5] = correo;
+        mensaje[6] = "Miembro del staff";
+        mensaje[7] = jc;
 
         return mensaje;
 
@@ -137,24 +143,32 @@ public class Ventana extends javax.swing.JFrame {
 
         JComboBox alias_clientes = new JComboBox();
         JComboBox nombre_platos = new JComboBox();
-        JTextField fecha = new JTextField("YYYY/MM/DD");
+        JTextField fecha = new JTextField(LocalDateTime.now().toString());
         Object[] mensaje = new Object[6 + articulos];
         //Modelo del combobox
         ArrayList<String> modeloCombo = new ArrayList<String>();
 
         //Relleno los comboBox de alias_clientes y nombre_platos
         ResultSet rs;
-        rs = c.devuelveResultSet("SELECT alias FROM clientes");
-
+        rs = c.devuelveResultSet("SELECT id, alias FROM clientes");
+        
         while (rs.next()) {
-            alias_clientes.addItem(rs.getString("alias"));
+            String cliente = "";
+            cliente += rs.getString("id") + "-";
+            cliente += rs.getString("alias");
+            
+            
+            alias_clientes.addItem(cliente);
         }
 
-        rs = c.devuelveResultSet("SELECT nombre FROM platos");
+        rs = c.devuelveResultSet("SELECT id, nombre FROM platos");
 
         modeloCombo.add("");
         while (rs.next()) {
-            modeloCombo.add(rs.getString("nombre"));
+            String plato = "";
+            plato += rs.getString("id") + "-";
+            plato += rs.getString("nombre");
+            modeloCombo.add(plato);
         }
 
         rs.close();
@@ -184,14 +198,14 @@ public class Ventana extends javax.swing.JFrame {
         ArrayList<String> modeloCombo = new ArrayList<String>();
         //Relleno los comboBox de alias_clientes y nombre_platos
         ResultSet rs;
-        rs = c.devuelveResultSet("SELECT nombre FROM ingredientes");
-
-        System.out.println(rs.getRow());
+        rs = c.devuelveResultSet("SELECT id, nombre FROM ingredientes");        
 
         modeloCombo.add("");
         while (rs.next()) {
-            modeloCombo.add(rs.getString("nombre"));
-
+            String ingrediente = "";
+            ingrediente += rs.getString("id") + "-";
+            ingrediente += rs.getString("nombre");
+            modeloCombo.add(ingrediente);
         }
 
         rs.close();
@@ -227,29 +241,142 @@ public class Ventana extends javax.swing.JFrame {
 
     }
 
-    public void inserta(Object[] campos) throws SQLException {
-        int columnas = jTableResultados.getColumnCount();
-        String nombres = "(";
-        String values = "(";
-        for (int i = 0; i < columnas; i++) {
-            nombres += jTableResultados.getColumnName(i);
-            values += "'" + campos[i] + "'";
+    public void inserta(Object[] campos) throws SQLException, InterruptedException {
+        ArrayList<String> output = new ArrayList<>();
+        String query = "";
+        if(tabla == "clientes"){
+            query = "INSERT INTO `clientes` (`alias`, `pass`, `correo`, `staff`) VALUES(";
+        }else query = "INSERT INTO `ingredientes` (`nombre`, `stock`) VALUES(";
+        
 
-            //Si no es la última pondré comas para poder seguir metiendo valores
-            if (i != columnas - 1) {
-                nombres += ",";
-                values += ",";
+        for (int i = 0; i < campos.length; i++) {
+            if (campos[i].getClass() != String.class) {
+                if (campos[i].getClass() != JComboBox.class) {
+                    JTextField jt = (JTextField) campos[i];
+                    query += "'" + jt.getText() + "'";
+
+                    query += ", ";
+
+                } else {
+                    JComboBox jc = (JComboBox) campos[i];
+                    query += jc.getSelectedItem().toString();
+                    query += ");";
+                }
             }
         }
-        nombres += ")";
-        values += ")";
 
-        String output = "INSERT INTO " + tabla + " " + nombres + " VALUES" + values;
-        System.out.println(output);
-
-        c.ejecutaQuery(output);
+        System.out.println(query);
+        c.ejecutaQuery(query);
+        //Muestro el campo añadido en la tabla
+        creaTabla(c.ultimaAdicion(tabla, dameUltimoID()), tabla);
 
     }
+    
+    
+    public void insertaPedido(Object[] campos) throws SQLException{
+        ArrayList<String> filtrado = new ArrayList<>();
+        String insertaEnPedido = "";
+        String insertaEnPedidosPlato = "";
+        
+        
+        for(int i = 0; i < campos.length; i++){
+            if(!(campos[i] instanceof String)){
+                if(campos[i] instanceof JTextField){
+                    
+                    JTextField jtf = (JTextField)campos[i];
+                    filtrado.add(jtf.getText());
+                    
+                }else if(campos[i] instanceof JComboBox){
+                    
+                    JComboBox jcb = (JComboBox) campos[i];
+                    filtrado.add(jcb.getSelectedItem().toString());
+                }
+            }                    
+        }
+        String [] f = filtrado.get(0).split("-");
+        insertaEnPedido = "INSERT INTO pedidos (alias_clientes, fecha) VALUES ('"+ f[1] + "', '"+ filtrado.get(1) + "')";
+        System.out.println(insertaEnPedido);
+        c.ejecutaQuery(insertaEnPedido);
+        
+        //Guardo el ID del pedido insertado
+        int id = dameUltimoID();
+        for(int j = 2; j < filtrado.size(); j++){
+            insertaEnPedidosPlato = "INSERT INTO pedidos_platos (id_pedido, id_plato) VALUES(";            
+            
+            //Divido el campo del plato para sacar el id
+            String[] idPlato = filtrado.get(j).split("-");
+            insertaEnPedidosPlato += "'"+ id +"', '"+ idPlato[0] +"'";
+            
+            
+            insertaEnPedidosPlato += ")";
+            
+            System.out.println(insertaEnPedidosPlato);
+            c.ejecutaQuery(insertaEnPedidosPlato);
+        }
+        
+        
+        
+    
+    
+    }
+    
+    
+    public void insertaPlato(Object[] campos) throws SQLException{
+        ArrayList<String> filtrado = new ArrayList<>();
+        String insertaEnPlatos = "";
+        String insertaEnPlatosIngredientes = "";
+        
+        
+        for(int i = 0; i < campos.length; i++){
+            if(!(campos[i] instanceof String)){
+                if(campos[i] instanceof JTextField){
+                    
+                    JTextField jtf = (JTextField)campos[i];
+                    filtrado.add(jtf.getText());
+                    
+                }else if(campos[i] instanceof JComboBox){
+                    
+                    JComboBox jcb = (JComboBox) campos[i];
+                    filtrado.add(jcb.getSelectedItem().toString());
+                }
+            }                    
+        }
+        
+        insertaEnPlatos = "INSERT INTO platos (nombre) VALUES ('"+ filtrado.get(0) + "')";
+        System.out.println(insertaEnPlatos);
+        c.ejecutaQuery(insertaEnPlatos);
+        
+        //Guardo el ID del pedido insertado
+        int id = dameUltimoID();
+        for(int j = 1; j < filtrado.size(); j++){
+            insertaEnPlatosIngredientes = "INSERT INTO platos_ingredientes (id_plato, id_ingrediente) VALUES(";            
+            
+            //Divido el campo del plato para sacar el id
+            String[] idIngrediente = filtrado.get(j).split("-");
+            insertaEnPlatosIngredientes += "'"+ id +"', '"+ idIngrediente[0] +"'";
+            
+            
+            insertaEnPlatosIngredientes += ")";
+            
+            System.out.println(insertaEnPlatosIngredientes);
+            c.ejecutaQuery(insertaEnPlatosIngredientes);
+        }
+        
+        
+        
+    
+    
+    }
+    
+    public int dameUltimoID() throws SQLException{
+        ResultSet rs = c.devuelveResultSet("SELECT LAST_INSERT_ID()");
+        int id = 0;
+        while(rs.next()){
+            id = rs.getInt(1);
+        }
+        return id;
+    }
+        
 
     /*
     ================================                    ================================
@@ -646,6 +773,24 @@ public class Ventana extends javax.swing.JFrame {
 
         int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Añadir " + tabla, JOptionPane.OK_CANCEL_OPTION);
         if (opcion == JOptionPane.OK_OPTION) {
+
+            try {
+
+                if (tabla == "clientes") {
+                    inserta(mensaje);
+                } else if (tabla == "pedidos") {
+                    insertaPedido(mensaje);
+                } else if (tabla == "ingredientes") {
+                    inserta(mensaje);
+                } else if (tabla == "platos") {
+                    insertaPlato(mensaje);
+                } else {
+                    System.out.println("Tabla desconocida o no seleccionada");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
     }//GEN-LAST:event_jButtonAddMousePressed

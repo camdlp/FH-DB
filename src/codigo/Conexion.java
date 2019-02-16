@@ -107,7 +107,7 @@ public class Conexion {
 
     public ResultSet ultimaAdicion(String tabla, int id) {
         try {
-            pst = con.prepareStatement("SELECT * FROM "+ tabla +" WHERE `id_` LIKE ?");
+            pst = con.prepareStatement("SELECT * FROM "+ tabla +" WHERE `id` LIKE ?");
             pst.setInt(1, id);
             rs = pst.executeQuery();            
             
