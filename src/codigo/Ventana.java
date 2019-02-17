@@ -116,15 +116,18 @@ public class Ventana extends javax.swing.JFrame {
 
     }
 
-    public Object[] addClientes() {
-        JTextField alias = new JTextField();
-        JTextField correo = new JTextField();
-        JPasswordField pass = new JPasswordField();
+    public Object[] addClientes(String pasa_alias, String pasa_correo, String pasa_pass, String pasa_staff) {
+
+        JTextField alias = new JTextField(pasa_alias);
+        JTextField correo = new JTextField(pasa_correo);
+        JPasswordField pass = new JPasswordField(pasa_pass);
         Object[] mensaje = new Object[8];
         JComboBox jc = new JComboBox();
-        
+
         jc.addItem("false");
         jc.addItem("true");
+
+        jc.setSelectedItem(pasa_staff);
 
         mensaje[0] = "Alias";
         mensaje[1] = alias;
@@ -139,7 +142,7 @@ public class Ventana extends javax.swing.JFrame {
 
     }
 
-    public Object[] addPedidos(int articulos) throws SQLException {
+    public Object[] addPedidos(int articulos, String pasa_alias_clientes, String pasa_fecha) throws SQLException {
 
         JComboBox alias_clientes = new JComboBox();
         JComboBox nombre_platos = new JComboBox();
@@ -150,14 +153,20 @@ public class Ventana extends javax.swing.JFrame {
 
         //Relleno los comboBox de alias_clientes y nombre_platos
         ResultSet rs;
+
+        if (pasa_fecha != "") {
+            fecha = new JTextField(pasa_fecha);
+        } else {
+            fecha = new JTextField(LocalDateTime.now().toString());
+        }
+
         rs = c.devuelveResultSet("SELECT id, alias FROM clientes");
-        
+
         while (rs.next()) {
             String cliente = "";
             cliente += rs.getString("id") + "-";
             cliente += rs.getString("alias");
-            
-            
+
             alias_clientes.addItem(cliente);
         }
 
@@ -171,8 +180,6 @@ public class Ventana extends javax.swing.JFrame {
             modeloCombo.add(plato);
         }
 
-        rs.close();
-
         mensaje[0] = "Alias del Cliente";
         mensaje[1] = alias_clientes;
         mensaje[2] = "Fecha del Pedido. (Formato año/mes/dia)";
@@ -180,25 +187,41 @@ public class Ventana extends javax.swing.JFrame {
         mensaje[4] = "Platos pedidos";
         mensaje[5] = nombre_platos;
 
+        //Si he pasado valores, es decir, si estoy en modificar, hago la consulta
+        if (!"".equals(pasa_alias_clientes)) {
+
+            String query = "SELECT id_plato FROM pedidos_platos WHERE id_pedido='" + jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0) + "'";
+            System.out.println(query);
+            rs = c.devuelveResultSet(query);
+        }
+
         for (int i = 5; i < articulos + 5; i++) {
             JComboBox jc = new JComboBox(modeloCombo.toArray());
 
+            if (rs.next()) {
+
+                //Guardo el id del objeto existente si lo hubiera
+                int str = rs.getInt(1);
+                System.out.println(str);
+                jc.setSelectedIndex(str);
+            }
+
             mensaje[i] = jc;
         }
-
+        rs.close();
         return mensaje;
 
     }
 
-    public Object[] addPlatos(int ingredientes) throws SQLException {
+    public Object[] addPlatos(int ingredientes, String pasa_nombre) throws SQLException {
 
-        JTextField nombre = new JTextField();
+        JTextField nombre = new JTextField(pasa_nombre);
         //JComboBox nombre_ingredientes = new JComboBox();
         Object[] mensaje = new Object[3 + ingredientes];
         ArrayList<String> modeloCombo = new ArrayList<String>();
         //Relleno los comboBox de alias_clientes y nombre_platos
         ResultSet rs;
-        rs = c.devuelveResultSet("SELECT id, nombre FROM ingredientes");        
+        rs = c.devuelveResultSet("SELECT id, nombre FROM ingredientes");
 
         modeloCombo.add("");
         while (rs.next()) {
@@ -208,29 +231,44 @@ public class Ventana extends javax.swing.JFrame {
             modeloCombo.add(ingrediente);
         }
 
-        rs.close();
-
         mensaje[0] = "Nombre del plato";
         mensaje[1] = nombre;
         mensaje[2] = "Ingredientes que lleva";
 
+        if (!"".equals(pasa_nombre)) {
+
+            String query = "SELECT id_ingrediente FROM platos_ingredientes WHERE id_plato='" + jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0) + "'";
+            System.out.println(query);
+            rs = c.devuelveResultSet(query);
+        }
+
         for (int i = 3; i < ingredientes + 3; i++) {
             JComboBox jc = new JComboBox(modeloCombo.toArray());
 
+            if (rs.next()) {
+
+                //Guardo el id del objeto existente si lo hubiera
+                int str = rs.getInt(1);
+                System.out.println(str);
+                jc.setSelectedIndex(str);
+            }
+
             mensaje[i] = jc;
         }
-
+        rs.close();
         return mensaje;
 
     }
 
-    public Object[] addIngredientes() {
-        JTextField nombre = new JTextField();
+    public Object[] addIngredientes(String pasa_nombre, String pasa_stock) {
+        JTextField nombre = new JTextField(pasa_nombre);
         JComboBox stock = new JComboBox();
         Object[] mensaje = new Object[4];
 
         stock.addItem("true");
         stock.addItem("false");
+
+        stock.setSelectedItem(pasa_stock);
 
         mensaje[0] = "Nombre";
         mensaje[1] = nombre;
@@ -244,10 +282,11 @@ public class Ventana extends javax.swing.JFrame {
     public void inserta(Object[] campos) throws SQLException, InterruptedException {
         ArrayList<String> output = new ArrayList<>();
         String query = "";
-        if(tabla == "clientes"){
+        if (tabla == "clientes") {
             query = "INSERT INTO `clientes` (`alias`, `pass`, `correo`, `staff`) VALUES(";
-        }else query = "INSERT INTO `ingredientes` (`nombre`, `stock`) VALUES(";
-        
+        } else {
+            query = "INSERT INTO `ingredientes` (`nombre`, `stock`) VALUES(";
+        }
 
         for (int i = 0; i < campos.length; i++) {
             if (campos[i].getClass() != String.class) {
@@ -271,112 +310,98 @@ public class Ventana extends javax.swing.JFrame {
         creaTabla(c.ultimaAdicion(tabla, dameUltimoID()), tabla);
 
     }
-    
-    
-    public void insertaPedido(Object[] campos) throws SQLException{
+
+    public void insertaPedido(Object[] campos) throws SQLException {
         ArrayList<String> filtrado = new ArrayList<>();
         String insertaEnPedido = "";
         String insertaEnPedidosPlato = "";
-        
-        
-        for(int i = 0; i < campos.length; i++){
-            if(!(campos[i] instanceof String)){
-                if(campos[i] instanceof JTextField){
-                    
-                    JTextField jtf = (JTextField)campos[i];
+
+        for (int i = 0; i < campos.length; i++) {
+            if (!(campos[i] instanceof String)) {
+                if (campos[i] instanceof JTextField) {
+
+                    JTextField jtf = (JTextField) campos[i];
                     filtrado.add(jtf.getText());
-                    
-                }else if(campos[i] instanceof JComboBox){
-                    
+
+                } else if (campos[i] instanceof JComboBox) {
+
                     JComboBox jcb = (JComboBox) campos[i];
                     filtrado.add(jcb.getSelectedItem().toString());
                 }
-            }                    
+            }
         }
-        String [] f = filtrado.get(0).split("-");
-        insertaEnPedido = "INSERT INTO pedidos (alias_clientes, fecha) VALUES ('"+ f[1] + "', '"+ filtrado.get(1) + "')";
+        String[] f = filtrado.get(0).split("-");
+        insertaEnPedido = "INSERT INTO pedidos (alias_clientes, fecha) VALUES ('" + f[1] + "', '" + filtrado.get(1) + "')";
         System.out.println(insertaEnPedido);
         c.ejecutaQuery(insertaEnPedido);
-        
+
         //Guardo el ID del pedido insertado
         int id = dameUltimoID();
-        for(int j = 2; j < filtrado.size(); j++){
-            insertaEnPedidosPlato = "INSERT INTO pedidos_platos (id_pedido, id_plato) VALUES(";            
-            
+        for (int j = 2; j < filtrado.size(); j++) {
+            insertaEnPedidosPlato = "INSERT INTO pedidos_platos (id_pedido, id_plato) VALUES(";
+
             //Divido el campo del plato para sacar el id
             String[] idPlato = filtrado.get(j).split("-");
-            insertaEnPedidosPlato += "'"+ id +"', '"+ idPlato[0] +"'";
-            
-            
+            insertaEnPedidosPlato += "'" + id + "', '" + idPlato[0] + "'";
+
             insertaEnPedidosPlato += ")";
-            
+
             System.out.println(insertaEnPedidosPlato);
             c.ejecutaQuery(insertaEnPedidosPlato);
         }
-        
-        
-        
-    
-    
+
     }
-    
-    
-    public void insertaPlato(Object[] campos) throws SQLException{
+
+    public void insertaPlato(Object[] campos) throws SQLException {
         ArrayList<String> filtrado = new ArrayList<>();
         String insertaEnPlatos = "";
         String insertaEnPlatosIngredientes = "";
-        
-        
-        for(int i = 0; i < campos.length; i++){
-            if(!(campos[i] instanceof String)){
-                if(campos[i] instanceof JTextField){
-                    
-                    JTextField jtf = (JTextField)campos[i];
+
+        for (int i = 0; i < campos.length; i++) {
+            if (!(campos[i] instanceof String)) {
+                if (campos[i] instanceof JTextField) {
+
+                    JTextField jtf = (JTextField) campos[i];
                     filtrado.add(jtf.getText());
-                    
-                }else if(campos[i] instanceof JComboBox){
-                    
+
+                } else if (campos[i] instanceof JComboBox) {
+
                     JComboBox jcb = (JComboBox) campos[i];
                     filtrado.add(jcb.getSelectedItem().toString());
                 }
-            }                    
+            }
         }
-        
-        insertaEnPlatos = "INSERT INTO platos (nombre) VALUES ('"+ filtrado.get(0) + "')";
+
+        insertaEnPlatos = "INSERT INTO platos (nombre) VALUES ('" + filtrado.get(0) + "')";
         System.out.println(insertaEnPlatos);
         c.ejecutaQuery(insertaEnPlatos);
-        
+
         //Guardo el ID del pedido insertado
         int id = dameUltimoID();
-        for(int j = 1; j < filtrado.size(); j++){
-            insertaEnPlatosIngredientes = "INSERT INTO platos_ingredientes (id_plato, id_ingrediente) VALUES(";            
-            
+        for (int j = 1; j < filtrado.size(); j++) {
+            insertaEnPlatosIngredientes = "INSERT INTO platos_ingredientes (id_plato, id_ingrediente) VALUES(";
+
             //Divido el campo del plato para sacar el id
             String[] idIngrediente = filtrado.get(j).split("-");
-            insertaEnPlatosIngredientes += "'"+ id +"', '"+ idIngrediente[0] +"'";
-            
-            
+            insertaEnPlatosIngredientes += "'" + id + "', '" + idIngrediente[0] + "'";
+
             insertaEnPlatosIngredientes += ")";
-            
+
             System.out.println(insertaEnPlatosIngredientes);
             c.ejecutaQuery(insertaEnPlatosIngredientes);
         }
-        
-        
-        
-    
-    
+
     }
-    
-    public int dameUltimoID() throws SQLException{
+
+    public int dameUltimoID() throws SQLException {
         ResultSet rs = c.devuelveResultSet("SELECT LAST_INSERT_ID()");
         int id = 0;
-        while(rs.next()){
+        while (rs.next()) {
             id = rs.getInt(1);
         }
         return id;
     }
-        
+
 
     /*
     ================================                    ================================
@@ -415,6 +440,7 @@ public class Ventana extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jComboBoxBusqueda = new javax.swing.JComboBox<>();
         jButtonAdd = new javax.swing.JButton();
+        jButtonModificar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -573,6 +599,14 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
+        jButtonModificar.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jButtonModificar.setText("Modificar");
+        jButtonModificar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jButtonModificarMousePressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -589,9 +623,11 @@ public class Ventana extends javax.swing.JFrame {
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(135, 135, 135)
-                        .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(70, 70, 70)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -611,7 +647,8 @@ public class Ventana extends javax.swing.JFrame {
                     .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonAdd))
+                    .addComponent(jButtonAdd)
+                    .addComponent(jButtonModificar))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(60, 60, 60))
@@ -755,14 +792,14 @@ public class Ventana extends javax.swing.JFrame {
         try {
 
             if (tabla == "clientes") {
-                mensaje = addClientes();
+                mensaje = addClientes("", "", "", "");
             } else if (tabla == "pedidos") {
-                mensaje = addPedidos(Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos artículos tendrá?")));
+                mensaje = addPedidos(Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos artículos tendrá?")), "", "");
             } else if (tabla == "ingredientes") {
-                mensaje = addIngredientes();
+                mensaje = addIngredientes("", "");
             } else if (tabla == "platos") {
                 //Pregunto cuánto ingredientes tendrá
-                mensaje = addPlatos(Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos ingredientes tendrá?")));
+                mensaje = addPlatos(Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos ingredientes tendrá?")), "");
             } else {
                 System.out.println("Tabla desconocida o no seleccionada");
             }
@@ -794,6 +831,63 @@ public class Ventana extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_jButtonAddMousePressed
+
+    private void jButtonModificarMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonModificarMousePressed
+        if (jTableResultados.getSelectedRow() != -1) {
+            String[] columnas = new String[jTableResultados.getColumnCount()];
+
+            for (int i = 0; i < columnas.length; i++) {
+
+                columnas[i] = jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), i).toString();
+
+            }
+            Object[] mensaje = null;
+            switch (tabla) {
+                case "clientes":
+                    mensaje = addClientes(columnas[1], columnas[2], columnas[3], columnas[4]);
+                    break;
+
+                case "pedidos": {
+                    try {
+                        String query = "SELECT COUNT(*) FROM pedidos_platos WHERE id_pedido = '" + jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0) + "'";
+                        System.out.println(query);
+                        ResultSet rs = c.devuelveResultSet(query);
+                        rs.next();
+                        mensaje = addPedidos(rs.getInt("COUNT(*)"), jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 1).toString(),
+                                jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 2).toString());
+                        rs.close();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                break;
+
+                case "ingredientes":
+                    mensaje = addIngredientes(jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 1).toString(),
+                            jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 2).toString());
+                    break;
+
+                case "platos": {
+                    try {
+                        String query = "SELECT COUNT(*) FROM platos_ingredientes WHERE id_plato = '" + jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0) + "'";
+                        System.out.println(query);
+                        ResultSet rs = c.devuelveResultSet(query);
+                        rs.next();
+                        mensaje = addPlatos(rs.getInt("COUNT(*)"), jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 1).toString());
+                        rs.close();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+            }
+
+            JOptionPane.showConfirmDialog(this, mensaje, "Modifica " + tabla, JOptionPane.OK_CANCEL_OPTION);
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecciona un campo en la tabla para modifcar");
+        }
+    }//GEN-LAST:event_jButtonModificarMousePressed
 
     /*
     ================================                    ================================
@@ -856,6 +950,7 @@ public class Ventana extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAdd;
+    private javax.swing.JButton jButtonModificar;
     private javax.swing.JComboBox<String> jComboBoxBusqueda;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

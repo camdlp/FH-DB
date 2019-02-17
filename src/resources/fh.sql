@@ -106,7 +106,7 @@ INSERT INTO `pedidos` (`id`, `alias_clientes`)
     VALUES (NULL, 'a'), (NULL, 'b');
 
 INSERT INTO `platos_ingredientes` (`id_plato`, `id_ingrediente`, `cantidad`)
-    VALUES(1, 1, 1), (1, 2, 1);
+    VALUES(1, 1, 1), (1, 2, 1), (2, 1, 1), (2, 2, 1);
 
 INSERT INTO `pedidos_platos` (`id_pedido`, `id_plato`, `cantidad`)
-    VALUES(1, 1, 1), (1, 2, 1);
+    VALUES(1, 1, 1), (1, 2, 1),(2, 1, 1), (2, 2, 1);
