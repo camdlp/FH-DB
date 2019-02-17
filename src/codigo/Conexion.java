@@ -83,11 +83,12 @@ public class Conexion {
 
             sta.executeUpdate(query);
             con.commit();
+            con.setAutoCommit(true);
 
-        }catch(Exception e){
-            e.printStackTrace();
+        }catch(SQLException ex){
+            System.out.println(ex.toString()); 
             con.rollback();
-        
+            System.out.println("Rollback efectuado");
         }finally {
             sta.close();
             System.out.println("Statement cerrado");

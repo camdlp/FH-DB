@@ -16,6 +16,7 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.ListModel;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
@@ -116,7 +117,7 @@ public class Ventana extends javax.swing.JFrame {
 
     }
 
-    public Object[] addClientes(String pasa_alias, String pasa_correo, String pasa_pass, String pasa_staff) {
+    public Object[] addClientes(String pasa_alias, String pasa_pass, String pasa_correo, String pasa_staff) {
 
         JTextField alias = new JTextField(pasa_alias);
         JTextField correo = new JTextField(pasa_correo);
@@ -124,8 +125,8 @@ public class Ventana extends javax.swing.JFrame {
         Object[] mensaje = new Object[8];
         JComboBox jc = new JComboBox();
 
-        jc.addItem("false");
-        jc.addItem("true");
+        jc.addItem("0");
+        jc.addItem("1");
 
         jc.setSelectedItem(pasa_staff);
 
@@ -159,8 +160,8 @@ public class Ventana extends javax.swing.JFrame {
         } else {
             fecha = new JTextField(LocalDateTime.now().toString());
         }
-
-        rs = c.devuelveResultSet("SELECT id, alias FROM clientes");
+        //Order by necesario para que los elementos del jcombobox salgan por orden
+        rs = c.devuelveResultSet("SELECT id, alias FROM clientes ORDER BY id");
 
         while (rs.next()) {
             String cliente = "";
@@ -170,7 +171,7 @@ public class Ventana extends javax.swing.JFrame {
             alias_clientes.addItem(cliente);
         }
 
-        rs = c.devuelveResultSet("SELECT id, nombre FROM platos");
+        rs = c.devuelveResultSet("SELECT id, nombre FROM platos ORDER BY id");
 
         modeloCombo.add("");
         while (rs.next()) {
@@ -221,7 +222,7 @@ public class Ventana extends javax.swing.JFrame {
         ArrayList<String> modeloCombo = new ArrayList<String>();
         //Relleno los comboBox de alias_clientes y nombre_platos
         ResultSet rs;
-        rs = c.devuelveResultSet("SELECT id, nombre FROM ingredientes");
+        rs = c.devuelveResultSet("SELECT id, nombre FROM ingredientes  ORDER BY id");
 
         modeloCombo.add("");
         while (rs.next()) {
@@ -265,8 +266,8 @@ public class Ventana extends javax.swing.JFrame {
         JComboBox stock = new JComboBox();
         Object[] mensaje = new Object[4];
 
-        stock.addItem("true");
-        stock.addItem("false");
+        stock.addItem("1");
+        stock.addItem("0");
 
         stock.setSelectedItem(pasa_stock);
 
@@ -402,6 +403,136 @@ public class Ventana extends javax.swing.JFrame {
         return id;
     }
 
+    public void update(Object[] campos) throws SQLException {
+        ArrayList<String> filtrado = new ArrayList<>();
+        String query = "UPDATE " + tabla + " SET ";
+
+        //Elimino los campos de los 'labels'
+        for (int i = 0; i < campos.length; i++) {
+            if (!(campos[i] instanceof String)) {
+                if (campos[i] instanceof JTextField) {
+
+                    JTextField jtf = (JTextField) campos[i];
+                    filtrado.add(jtf.getText());
+
+                } else if (campos[i] instanceof JComboBox) {
+
+                    JComboBox jcb = (JComboBox) campos[i];
+                    filtrado.add(jcb.getSelectedItem().toString());
+                }
+
+            }
+        }
+
+        for (int i = 0; i < filtrado.size(); i++) {
+
+            query += jTableResultados.getColumnName(i + 1) + " = '" + filtrado.get(i) + "'";
+
+            if (i != filtrado.size() - 1) {
+                query += " , ";
+            } else {
+                query += " WHERE id = " + jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0);
+            }
+        }
+
+        System.out.println(query);
+        c.ejecutaQuery(query);
+
+    }
+
+    public void updatePedidos(Object[] campos) throws SQLException {
+        ArrayList<String> filtrado = new ArrayList<>();
+        String query1 = "";
+        String query2 = "";
+
+        //Elimino los campos de los 'labels'
+        for (int i = 0; i < campos.length; i++) {
+            if (!(campos[i] instanceof String)) {
+                if (campos[i] instanceof JTextField) {
+
+                    JTextField jtf = (JTextField) campos[i];
+                    filtrado.add(jtf.getText());
+
+                } else if (campos[i] instanceof JComboBox) {
+
+                    JComboBox jcb = (JComboBox) campos[i];
+                    filtrado.add(jcb.getSelectedItem().toString());
+                }
+
+            }
+        }
+        String id = jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0).toString();
+
+        //Separo el alias del id para guardar el alias
+        String[] separado = filtrado.get(0).split("-");
+
+        query1 += "UPDATE pedidos SET  alias_clientes = '" + separado[1] + "'" + ", fecha = '" + filtrado.get(1) + "' WHERE id = " + id + ";";
+        System.out.println(query1);
+        c.ejecutaQuery(query1);
+
+        query2 = "DELETE FROM pedidos_platos WHERE id_pedido = " + id + ";\n";
+
+        System.out.println(query2);
+        c.ejecutaQuery(query2);
+        for (int i = 2; i < filtrado.size(); i++) {
+            query2 = "INSERT INTO pedidos_platos (id_pedido, id_plato) VALUES ('";
+
+            separado = filtrado.get(i).split("-");
+            query2 += id + "' , '" + separado[0] + "');\n";
+            System.out.println(query2);
+            c.ejecutaQuery(query2);
+
+        }
+
+    }
+
+    public void updatePlatos(Object[] campos) throws SQLException {
+        ArrayList<String> filtrado = new ArrayList<>();
+        String query1 = "";
+        String query2 = "";
+
+        //Elimino los campos de los 'labels'
+        for (int i = 0; i < campos.length; i++) {
+            if (!(campos[i] instanceof String)) {
+                if (campos[i] instanceof JTextField) {
+
+                    JTextField jtf = (JTextField) campos[i];
+                    filtrado.add(jtf.getText());
+
+                } else if (campos[i] instanceof JComboBox) {
+
+                    JComboBox jcb = (JComboBox) campos[i];
+                    filtrado.add(jcb.getSelectedItem().toString());
+                }
+
+            }
+        }
+        String id = jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0).toString();
+        
+
+        query1 += "UPDATE platos SET  `nombre` = '" + filtrado.get(0) + "'" + " WHERE `id` = '" + id + "';\n";
+        System.out.println(query1);
+        c.ejecutaQuery(query1);
+
+        query2 = "DELETE FROM platos_ingredientes WHERE `id_plato` = '" + id + "';\n";
+        System.out.println(query2);
+        c.ejecutaQuery(query2);
+        
+        
+        //c.ejecutaQuery(query2);
+        for (int i = 1; i < filtrado.size(); i++) {
+            query2 = "INSERT INTO platos_ingredientes (`id_plato`, `id_ingrediente`) VALUES ('";
+
+            String[] separado = filtrado.get(i).split("-");
+            query2 += id + "' , '" + separado[0] + "');\n";
+            System.out.println(query2);
+            c.ejecutaQuery(query2);
+
+        }
+
+        
+
+    }
 
     /*
     ================================                    ================================
@@ -726,7 +857,7 @@ public class Ventana extends javax.swing.JFrame {
         if (jToggleButtonPedidos.isSelected()) {
             try {
                 tabla = "pedidos";
-                creaTabla(c.devuelveResultSet("SELECT * FROM pedidos"), tabla);
+                creaTabla(c.devuelveResultSet("SELECT p.*, pl.nombre, pp.cantidad FROM pedidos p, pedidos_platos pp, platos pl WHERE p.id = pp.id_pedido AND pl.id = pp.id_plato"), tabla);
                 rellenaComboBox();
             } catch (SQLException ex) {
                 Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
@@ -764,7 +895,7 @@ public class Ventana extends javax.swing.JFrame {
         if (jToggleButtonPlatos.isSelected()) {
             try {
                 tabla = "platos";
-                creaTabla(c.devuelveResultSet("SELECT * FROM platos"), tabla);
+                creaTabla(c.devuelveResultSet("SELECT p.*, i.nombre, pi.cantidad FROM platos p, platos_ingredientes pi, ingredientes i WHERE p.id = pi.id_plato AND i.id = pi.id_ingrediente"), tabla);
                 rellenaComboBox();
 
             } catch (SQLException ex) {
@@ -853,8 +984,7 @@ public class Ventana extends javax.swing.JFrame {
                         System.out.println(query);
                         ResultSet rs = c.devuelveResultSet(query);
                         rs.next();
-                        mensaje = addPedidos(rs.getInt("COUNT(*)"), jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 1).toString(),
-                                jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 2).toString());
+                        mensaje = addPedidos(rs.getInt("COUNT(*)"), columnas[1], columnas[2]);
                         rs.close();
                     } catch (SQLException ex) {
                         Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
@@ -863,17 +993,16 @@ public class Ventana extends javax.swing.JFrame {
                 break;
 
                 case "ingredientes":
-                    mensaje = addIngredientes(jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 1).toString(),
-                            jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 2).toString());
+                    mensaje = addIngredientes(columnas[1], columnas[2]);
                     break;
 
                 case "platos": {
                     try {
-                        String query = "SELECT COUNT(*) FROM platos_ingredientes WHERE id_plato = '" + jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0) + "'";
+                        String query = "SELECT COUNT(*) FROM platos_ingredientes WHERE id_plato = '" + columnas[0] + "'";
                         System.out.println(query);
                         ResultSet rs = c.devuelveResultSet(query);
                         rs.next();
-                        mensaje = addPlatos(rs.getInt("COUNT(*)"), jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 1).toString());
+                        mensaje = addPlatos(rs.getInt("COUNT(*)"), columnas[1]);
                         rs.close();
                     } catch (SQLException ex) {
                         Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
@@ -882,7 +1011,28 @@ public class Ventana extends javax.swing.JFrame {
 
             }
 
-            JOptionPane.showConfirmDialog(this, mensaje, "Modifica " + tabla, JOptionPane.OK_CANCEL_OPTION);
+            int opcion = JOptionPane.showConfirmDialog(this, mensaje, "Modifica " + tabla, JOptionPane.OK_CANCEL_OPTION);
+            if (opcion == JOptionPane.OK_OPTION) {
+
+                try {
+
+                    if (tabla == "clientes") {
+                        update(mensaje);
+                    } else if (tabla == "pedidos") {
+                        updatePedidos(mensaje);
+                    } else if (tabla == "ingredientes") {
+                        update(mensaje);
+                    } else if (tabla == "platos") {
+                        updatePlatos(mensaje);
+                    } else {
+                        System.out.println("Tabla desconocida o no seleccionada");
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
 
         } else {
             JOptionPane.showMessageDialog(this, "Selecciona un campo en la tabla para modifcar");
