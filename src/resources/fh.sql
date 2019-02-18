@@ -84,8 +84,8 @@ CREATE TABLE `pedidos_platos` (
   `id_plato` int(11) NOT NULL,
   `cantidad` varchar(30) NOT NULL DEFAULT 1,
     PRIMARY KEY(`id_pedido`, `id_plato`),
-	FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id`), 
-        FOREIGN KEY (`id_plato`) REFERENCES `platos` (`id`)
+	FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id`) ON UPDATE CASCADE ON DELETE CASCADE, 
+        FOREIGN KEY (`id_plato`) REFERENCES `platos` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -94,19 +94,22 @@ CREATE TABLE `pedidos_platos` (
 
 
 INSERT INTO `clientes` (`alias`, `pass`, `correo`, `staff`) 
-    VALUES ('c', 'c', 'c@c.com', '1'), ('a', 'a', 'c@c.com', '1'),('b', 'b', 'c@c.com', '1'),('d', 'd', 'c@c.com', '0');
+    VALUES ('carlos', 'password', 'carlos@gmail.com', '1'), ('carmen', 'password', 'carmen@gmail.com', '1'),
+('jorge', 'password', 'jorge@gmail.com', '1'),('sosio', 'password', 'sosio@gmail.com', '0');
 
 INSERT INTO `ingredientes` (`id`, `nombre`, `stock`) 
-    VALUES (NULL, 'espinacas', '1'), (NULL, 'comino', '1');
+    VALUES (NULL, 'espinaca', '1'), (NULL, 'comino', '1'), (NULL, 'pollo', '1'), (NULL, 'ajo', '1'), 
+(NULL, 'edulcorante', '1'), (NULL, 'chocolate negro', '1'), (NULL, 'lechuga', '1'), (NULL, 'tomate', '1'), (NULL, 'maíz', '1'),
+ (NULL, 'atún', '1'), (NULL, 'queso light', '1'), (NULL, 'leche desnatada', '1'), (NULL, 'manzana', '1');
 
 INSERT INTO `platos` (`id`, `nombre`) 
-    VALUES (NULL, 'Espinacas al ajillo'), (NULL, 'Pollo a la plancha');
+    VALUES (NULL, 'Espinacas al ajillo'), (NULL, 'Pollo a la plancha'), (NULL, 'Ensalada simple'), (NULL, 'Ensalada de pasta');
 
 INSERT INTO `pedidos` (`id`, `alias_clientes`) 
-    VALUES (NULL, 'a'), (NULL, 'b');
+    VALUES (NULL, 'carlos'), (NULL, 'carmen'), (NULL, 'jorge'), (NULL, 'sosio');
 
 INSERT INTO `platos_ingredientes` (`id_plato`, `id_ingrediente`, `cantidad`)
-    VALUES(1, 1, 1), (1, 2, 1), (2, 1, 1), (2, 2, 1);
+    VALUES(1, 1, 1), (1, 2, 1), (2, 4, 1), (2, 3, 1), (3, 1, 1), (3, 6, 1), (4, 5, 1), (4, 8, 1);
 
 INSERT INTO `pedidos_platos` (`id_pedido`, `id_plato`, `cantidad`)
-    VALUES(1, 1, 1), (1, 2, 1),(2, 1, 1), (2, 2, 1);
+    VALUES(1, 1, 1), (1, 2, 1),(2, 3, 1), (2, 4, 1), (3, 3, 1), (3, 4, 1),(4, 1, 1), (4, 4, 1);

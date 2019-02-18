@@ -31,16 +31,15 @@ public class Ventana extends javax.swing.JFrame {
     /**
      * Creates new form Ventana
      */
-    public Ventana() throws SQLException {        
+    public Ventana() throws SQLException {
         initComponents();
-        getContentPane().setBackground( Color.WHITE );
+        getContentPane().setBackground(Color.WHITE);
         //centro el jframe
         setLocationRelativeTo(null);
 
         //Customizo el header del jtable
         jTableResultados.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
-       
-        
+
         //Empiezan los clientes clickados
         jToggleButtonClientes.doClick();
         creaTabla(c.devuelveResultSet("SELECT * FROM clientes"), tabla);
@@ -513,7 +512,6 @@ public class Ventana extends javax.swing.JFrame {
             }
         }
         String id = jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0).toString();
-        
 
         query1 += "UPDATE platos SET  `nombre` = '" + filtrado.get(0) + "'" + " WHERE `id` = '" + id + "';\n";
         System.out.println(query1);
@@ -522,8 +520,7 @@ public class Ventana extends javax.swing.JFrame {
         query2 = "DELETE FROM platos_ingredientes WHERE `id_plato` = '" + id + "';\n";
         System.out.println(query2);
         c.ejecutaQuery(query2);
-        
-        
+
         //c.ejecutaQuery(query2);
         for (int i = 1; i < filtrado.size(); i++) {
             query2 = "INSERT INTO platos_ingredientes (`id_plato`, `id_ingrediente`) VALUES ('";
@@ -534,8 +531,6 @@ public class Ventana extends javax.swing.JFrame {
             c.ejecutaQuery(query2);
 
         }
-
-        
 
     }
 
@@ -578,6 +573,7 @@ public class Ventana extends javax.swing.JFrame {
         jComboBoxBusqueda = new javax.swing.JComboBox<>();
         jButtonModificar = new javax.swing.JButton();
         jButtonAdd = new javax.swing.JButton();
+        jButtonEliminar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -829,18 +825,29 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
+        jButtonEliminar.setBackground(new java.awt.Color(255, 255, 255));
+        jButtonEliminar.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jButtonEliminar.setText("Eliminar");
+        jButtonEliminar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jButtonEliminarMousePressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanelFondo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(jTabbedPane, javax.swing.GroupLayout.Alignment.TRAILING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(398, 398, 398)
                 .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButtonModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(467, 467, 467))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButtonEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -851,7 +858,8 @@ public class Ventana extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonAdd)
-                    .addComponent(jButtonModificar))
+                    .addComponent(jButtonModificar)
+                    .addComponent(jButtonEliminar))
                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
@@ -866,7 +874,7 @@ public class Ventana extends javax.swing.JFrame {
 
         } else if (jTabbedPane.getSelectedIndex() == 1) {
             jToggleButtonPlatos.doClick();
-            jToggleButtonPlatos.setSelected(true);            
+            jToggleButtonPlatos.setSelected(true);
             jToggleButtonIngredientes.setSelected(false);
         }
     }//GEN-LAST:event_jTabbedPaneMousePressed
@@ -1115,6 +1123,22 @@ public class Ventana extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jToggleButtonClientesActionPerformed
 
+    private void jButtonEliminarMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonEliminarMousePressed
+        if (jTableResultados.getSelectedRow() != -1) {
+            try {
+                String query = "DELETE FROM " + tabla + " WHERE id = " + jTableResultados.getModel().getValueAt(jTableResultados.getSelectedRow(), 0);
+                System.out.println(query);
+                c.ejecutaQuery(query);
+                JOptionPane.showMessageDialog(this, "Campo eliminado");
+            } catch (SQLException ex) {
+                Logger.getLogger(Ventana.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }else {
+            JOptionPane.showMessageDialog(this, "Selecciona un campo en la tabla para eliminar");
+        }
+
+    }//GEN-LAST:event_jButtonEliminarMousePressed
+
     /*
     ================================                    ================================
     ================================    FIN EVENTOS     ================================
@@ -1176,6 +1200,7 @@ public class Ventana extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonAdd;
+    private javax.swing.JButton jButtonEliminar;
     private javax.swing.JButton jButtonModificar;
     private javax.swing.JComboBox<String> jComboBoxBusqueda;
     private javax.swing.JLabel jLabel2;
