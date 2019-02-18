@@ -36,7 +36,7 @@ DROP TABLE IF EXISTS platos;
 
 CREATE TABLE `platos` (
   `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `nombre` varchar(30) UNIQUE KEY NOT NULL,
+  `nombre` varchar(50) UNIQUE KEY NOT NULL,
   `disponible` tinyint(1) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 

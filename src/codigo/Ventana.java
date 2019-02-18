@@ -5,6 +5,8 @@
  */
 package codigo;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -16,8 +18,8 @@ import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
 import javax.swing.RowFilter;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -30,12 +32,16 @@ public class Ventana extends javax.swing.JFrame {
     /**
      * Creates new form Ventana
      */
-    public Ventana() throws SQLException {
+    public Ventana() throws SQLException {        
         initComponents();
-
+        getContentPane().setBackground( Color.WHITE );
         //centro el jframe
         setLocationRelativeTo(null);
 
+        //Customizo el header del jtable
+        jTableResultados.getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+       
+        
         //Empiezan los clientes clickados
         jToggleButtonClientes.doClick();
         creaTabla(c.devuelveResultSet("SELECT * FROM clientes"), tabla);
@@ -562,6 +568,7 @@ public class Ventana extends javax.swing.JFrame {
         jPanelCocina = new javax.swing.JPanel();
         jToggleButtonPlatos = new javax.swing.JToggleButton();
         jToggleButtonIngredientes = new javax.swing.JToggleButton();
+        jPanelFondo = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTableResultados = new javax.swing.JTable();
         jLabel2 = new javax.swing.JLabel();
@@ -570,12 +577,16 @@ public class Ventana extends javax.swing.JFrame {
         jTextFieldBusqueda1 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jComboBoxBusqueda = new javax.swing.JComboBox<>();
-        jButtonAdd = new javax.swing.JButton();
         jButtonModificar = new javax.swing.JButton();
+        jButtonAdd = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
 
-        jTabbedPane.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jTabbedPane.setBackground(new java.awt.Color(255, 255, 255));
+        jTabbedPane.setForeground(new java.awt.Color(51, 51, 51));
+        jTabbedPane.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jTabbedPane.setRequestFocusEnabled(false);
         jTabbedPane.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jTabbedPaneStateChanged(evt);
@@ -587,8 +598,14 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
-        jToggleButtonClientes.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jToggleButtonClientes.setText("Clientes");
+        jPanelApp.setBackground(new java.awt.Color(193, 102, 107));
+        jPanelApp.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
+        jToggleButtonClientes.setBackground(new java.awt.Color(52, 62, 61));
+        jToggleButtonClientes.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jToggleButtonClientes.setForeground(new java.awt.Color(255, 255, 255));
+        jToggleButtonClientes.setText("CLIENTES");
+        jToggleButtonClientes.setBorder(null);
         jToggleButtonClientes.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jToggleButtonClientesStateChanged(evt);
@@ -599,9 +616,17 @@ public class Ventana extends javax.swing.JFrame {
                 jToggleButtonClientesMousePressed(evt);
             }
         });
+        jToggleButtonClientes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButtonClientesActionPerformed(evt);
+            }
+        });
 
-        jToggleButtonPedidos.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jToggleButtonPedidos.setText("Pedidos");
+        jToggleButtonPedidos.setBackground(new java.awt.Color(52, 62, 61));
+        jToggleButtonPedidos.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jToggleButtonPedidos.setForeground(new java.awt.Color(255, 255, 255));
+        jToggleButtonPedidos.setText("PEDIDOS");
+        jToggleButtonPedidos.setBorder(null);
         jToggleButtonPedidos.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jToggleButtonPedidosStateChanged(evt);
@@ -617,27 +642,32 @@ public class Ventana extends javax.swing.JFrame {
         jPanelApp.setLayout(jPanelAppLayout);
         jPanelAppLayout.setHorizontalGroup(
             jPanelAppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelAppLayout.createSequentialGroup()
+            .addGroup(jPanelAppLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jToggleButtonClientes, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButtonPedidos, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jToggleButtonClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 585, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
+                .addComponent(jToggleButtonPedidos, javax.swing.GroupLayout.PREFERRED_SIZE, 586, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanelAppLayout.setVerticalGroup(
             jPanelAppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelAppLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanelAppLayout.createSequentialGroup()
+                .addContainerGap(13, Short.MAX_VALUE)
                 .addGroup(jPanelAppLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jToggleButtonPedidos)
-                    .addComponent(jToggleButtonClientes))
-                .addGap(285, 285, 285))
+                    .addComponent(jToggleButtonClientes, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jToggleButtonPedidos, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14))
         );
 
         jTabbedPane.addTab("     App     ", jPanelApp);
 
-        jToggleButtonPlatos.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jToggleButtonPlatos.setText("Platos");
+        jPanelCocina.setBackground(new java.awt.Color(99, 163, 117));
+
+        jToggleButtonPlatos.setBackground(new java.awt.Color(52, 62, 61));
+        jToggleButtonPlatos.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jToggleButtonPlatos.setForeground(new java.awt.Color(255, 255, 255));
+        jToggleButtonPlatos.setText("PLATOS");
+        jToggleButtonPlatos.setBorder(null);
         jToggleButtonPlatos.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jToggleButtonPlatosStateChanged(evt);
@@ -649,8 +679,11 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
-        jToggleButtonIngredientes.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        jToggleButtonIngredientes.setText("Ingredientes");
+        jToggleButtonIngredientes.setBackground(new java.awt.Color(52, 62, 61));
+        jToggleButtonIngredientes.setFont(new java.awt.Font("Arial", 1, 20)); // NOI18N
+        jToggleButtonIngredientes.setForeground(new java.awt.Color(255, 255, 255));
+        jToggleButtonIngredientes.setText("INGREDIENTES");
+        jToggleButtonIngredientes.setBorder(null);
         jToggleButtonIngredientes.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jToggleButtonIngredientesStateChanged(evt);
@@ -668,24 +701,31 @@ public class Ventana extends javax.swing.JFrame {
             jPanelCocinaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelCocinaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jToggleButtonPlatos, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToggleButtonIngredientes, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jToggleButtonPlatos, javax.swing.GroupLayout.PREFERRED_SIZE, 585, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+                .addComponent(jToggleButtonIngredientes, javax.swing.GroupLayout.PREFERRED_SIZE, 585, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanelCocinaLayout.setVerticalGroup(
             jPanelCocinaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelCocinaLayout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelCocinaLayout.createSequentialGroup()
+                .addContainerGap(15, Short.MAX_VALUE)
                 .addGroup(jPanelCocinaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jToggleButtonIngredientes)
-                    .addComponent(jToggleButtonPlatos))
-                .addContainerGap(256, Short.MAX_VALUE))
+                    .addComponent(jToggleButtonIngredientes, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jToggleButtonPlatos, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14))
         );
 
         jTabbedPane.addTab("     Cocina     ", jPanelCocina);
 
-        jTableResultados.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        jPanelFondo.setBackground(new java.awt.Color(255, 255, 255));
+
+        jScrollPane3.setForeground(new java.awt.Color(255, 255, 255));
+        jScrollPane3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+
+        jTableResultados.setBackground(new java.awt.Color(255, 255, 255));
+        jTableResultados.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jTableResultados.setForeground(new java.awt.Color(52, 62, 61));
         jTableResultados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -697,10 +737,16 @@ public class Ventana extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTableResultados.setGridColor(new java.awt.Color(255, 255, 255));
+        jTableResultados.setOpaque(false);
+        jTableResultados.setSelectionBackground(new java.awt.Color(29, 132, 181));
+        jTableResultados.setShowVerticalLines(false);
         jScrollPane3.setViewportView(jTableResultados);
 
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel2.setText("Afinar Búsqueda");
 
+        jTextFieldBusqueda.setBackground(new java.awt.Color(255, 255, 255));
         jTextFieldBusqueda.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jTextFieldBusqueda.setEnabled(false);
         jTextFieldBusqueda.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -709,8 +755,10 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel3.setText("Buscar");
 
+        jTextFieldBusqueda1.setBackground(new java.awt.Color(255, 255, 255));
         jTextFieldBusqueda1.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
         jTextFieldBusqueda1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -718,19 +766,53 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel4.setText("Por:");
 
+        jComboBoxBusqueda.setBackground(new java.awt.Color(255, 255, 255));
         jComboBoxBusqueda.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
 
-        jButtonAdd.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
-        jButtonAdd.setText("Añadir");
-        jButtonAdd.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                jButtonAddMousePressed(evt);
-            }
-        });
+        javax.swing.GroupLayout jPanelFondoLayout = new javax.swing.GroupLayout(jPanelFondo);
+        jPanelFondo.setLayout(jPanelFondoLayout);
+        jPanelFondoLayout.setHorizontalGroup(
+            jPanelFondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelFondoLayout.createSequentialGroup()
+                .addGap(19, 19, 19)
+                .addGroup(jPanelFondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanelFondoLayout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addGap(18, 18, 18)
+                        .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 1192, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanelFondoLayout.setVerticalGroup(
+            jPanelFondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelFondoLayout.createSequentialGroup()
+                .addGap(15, 15, 15)
+                .addGroup(jPanelFondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4)
+                    .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanelFondoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel2)))
+                .addGap(16, 16, 16)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(12, Short.MAX_VALUE))
+        );
 
-        jButtonModificar.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jButtonModificar.setBackground(new java.awt.Color(255, 255, 255));
+        jButtonModificar.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jButtonModificar.setText("Modificar");
         jButtonModificar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -738,51 +820,39 @@ public class Ventana extends javax.swing.JFrame {
             }
         });
 
+        jButtonAdd.setBackground(new java.awt.Color(255, 255, 255));
+        jButtonAdd.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jButtonAdd.setText("Añadir");
+        jButtonAdd.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                jButtonAddMousePressed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(18, 18, 18)
-                        .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(70, 70, 70)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-            .addComponent(jTabbedPane)
+            .addComponent(jPanelFondo, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jTabbedPane, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButtonAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jButtonModificar, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(467, 467, 467))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 324, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jTabbedPane, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
+                .addComponent(jPanelFondo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextFieldBusqueda1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
-                    .addComponent(jComboBoxBusqueda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonAdd)
                     .addComponent(jButtonModificar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 232, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(60, 60, 60))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
 
         pack();
@@ -1039,6 +1109,10 @@ public class Ventana extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonModificarMousePressed
 
+    private void jToggleButtonClientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButtonClientesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jToggleButtonClientesActionPerformed
+
     /*
     ================================                    ================================
     ================================    FIN EVENTOS     ================================
@@ -1107,6 +1181,7 @@ public class Ventana extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanelApp;
     private javax.swing.JPanel jPanelCocina;
+    private javax.swing.JPanel jPanelFondo;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane;
     private javax.swing.JTable jTableResultados;

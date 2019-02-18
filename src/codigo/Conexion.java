@@ -57,7 +57,7 @@ public class Conexion {
     public void cierraStatement() throws SQLException {
         try {
             sta.close();
-            System.out.println("Statement cerrado");
+            //System.out.println("Statement cerrado");
         } catch (SQLException ex) {
             System.out.println(ex.getMessage()
                     + ". >>> Error de cierre de Statement!!");
@@ -68,7 +68,7 @@ public class Conexion {
     public void cierraResultSet() throws SQLException {
         try {
             rs.close();
-            System.out.println("ResultSet cerrado");
+            //System.out.println("ResultSet cerrado");
         } catch (SQLException ex) {
             System.out.println(ex.getMessage()
                     + ". >>> Error de cierre de ResultSet!!");
@@ -78,7 +78,7 @@ public class Conexion {
     public void ejecutaQuery(String query) throws SQLException {
         con.setAutoCommit(false);
         sta = con.createStatement();
-        System.out.println("Statement abierto");
+        //System.out.println("Statement abierto");
         try {
 
             sta.executeUpdate(query);
@@ -99,7 +99,7 @@ public class Conexion {
     public ResultSet devuelveResultSet(String query) throws SQLException {
 
         sta = con.createStatement();
-        System.out.println("Statement abierto");
+        //System.out.println("Statement abierto");
 
         rs = sta.executeQuery(query);
         return rs;
